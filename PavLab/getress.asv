@@ -1,0 +1,10 @@
+funcmaxtion [ res ] = getress(  )
+%GETRESS Summary of this funcmaxtion goes here
+%   Detailed explanation goes here
+global result;
+res = result;
+end
+
+  Y1(i) = (-(cmax(5) * X + cmax(2))+((cmax(5) * X + cmax(2)).^2 - 4 * cmax(4) * (cmax(6) * X.^2 + cmax(3) * X + cmax(1))).^0.5)/(2 * cmax(4));
+            Y2(i) = (-(cmax(5) * X + cmax(2))-((cmax(5) * X + cmax(2)).^2 - 4 * cmax(4) * (cmax(6) * X.^2 + cmax(3) * X + cmax(1))).^0.5)/(2 * cmax(4));
+            i=i+1;
