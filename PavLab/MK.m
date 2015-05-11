@@ -1,4 +1,4 @@
-function [ out ] = MK( cl1, cl2, pr, v2 , t1)
+function [ maxP, out ] = MK( cl1, cl2, pr, v2 , t1)
 %MK Summary of this function goes here
 %   Detailed explanation goes here
 clc;
@@ -13,14 +13,18 @@ end
 % cl2 = ws.class2;
 % /todo
 k = 2; % количество выбираемых за 1 шаг перестановок из pr
-out = '';
+out = sprintf('Метод Монте-Карло:\nМаксимальная вероятность правильного распознавания для каждого набора признаков / Набор признаков\n');
+maxP = [];
+addpath config;
 
 for q = 1:pr-1
     prp = nchoosek(w, q);    % текущая выборка по признаком i
-    [prl, col] = size(prp);       % длина текущей выборки
-    t = 1 / prl;            % количество интервалов
-    h = t / 10;             % велечина, на которую меняется интервал
-    s = 5;                % количество сравнений
+    [prl, col] = size(prp);  % длина текущей выборки
+    t = 1 / prl;             % количество интервалов
+    %   h     - велечина, на которую меняется интервал
+    %   s     - количество сравнений на каждом шаге
+    [h, s] = MKconfig(t, prl, q);
+    %     s = 5; %floor(row*0.1) + 1
     len(1 : prl) = t;
     for i = 1 : prl
         diap(i) = i / prl;  % значения для каждого эл-та выборки
@@ -85,9 +89,9 @@ for q = 1:pr-1
     end
     %diap
     len;
-%     for j = 1 : 5
-%         Amain(cl1(:, prp(j)), cl2(:, prp(j)), 1);
-%     end
+    %     for j = 1 : 5
+    %         Amain(cl1(:, prp(j)), cl2(:, prp(j)), 1);
+    %     end
     %prp = [1 2; 2 3; 3 4; 5 6; 6 7];
     % for i = 1: prl
     %     ii(i) = i;
@@ -111,22 +115,30 @@ for q = 1:pr-1
     res = Amain(cl11, cl12, col);
     %out1 = ['i = ' num2str(q)];
     q = prp(imax,:);
-        for e = 1:length(q)
-            qq(e) = t1(q(e));
-        end
-        str = [num2str(qq)];
-    out2 = [num2str(res(1)) '    ' str];
-    out = strvcat(out, out2);
+    for e = 1:length(q)
+        qq(e) = t1(q(e));
+    end
+    %     str = [num2str(qq)];
+    %     out2 = [num2str(res(1)) '  -  ' str];
+    %     out = strvcat(out, out2);
+    str = sprintf('%.2f\t%s', res(1), num2str(qq));
+    out = strvcat(out, str);
+    maxP(i) = res(1);
 end
 
+MKconfig(t, 1, pr);
+rmpath config;
 q = w;
-        for e = 1:length(q)
-            qq(e) = t1(q(e));
-        end
-        str = [num2str(qq)];
-        res = Amain(cl1, cl2, pr);
-    out2 = [num2str(res(1)) '    ' str];
-    out = strvcat(out, out2);
+for e = 1:length(q)
+    qq(e) = t1(q(e));
+end
+res = Amain(cl1, cl2, pr);
+str = sprintf('%.2f\t%s', res(1), num2str(qq));
+out = strvcat(out, str);
+maxP(pr) = res(1);
+% str = [num2str(qq)];
+% out2 = [num2str(res(1)) '  -  ' str];
+% out = strvcat(out, out2);
 
 
 function b = find(sk, prl, diap)

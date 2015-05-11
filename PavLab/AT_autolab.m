@@ -12,7 +12,18 @@ else
     class1 = normalClass(pr, N, class1M, class1D);
     class2 = normalClass(pr, N, class2M, class2D);
 end
+% Запись полученных классов в файл
 if fileflag
+    q = 1;
+    while (exist(file, 'file')) == 2
+        f = file(length(file)-4:length(file)-4);
+        if f == num2str(q-1)
+            file = [file(1:length(file)-5) num2str(q) file(length(file)-3:length(file))];
+        else
+            file = [file(1:length(file)-4) num2str(q) file(length(file)-3:length(file))];
+        end
+        q = q + 1;
+    end
     save (file, 'class1', 'class2');
 end
 addcl(class1);

@@ -1,11 +1,10 @@
-function [solver, a] = rule_lab2_1( class1, class2 )
+function [solver, a] = rule_lab2_1( class1, class2, pr)
 %UNTITLED Summary of this function goes here
 % Detailed explanation goes here
 M1 = mean(class1);
 M2 = mean(class2);
 n1 = length(class1);
 n2 = length(class2);
-nMin = min(n1,n2);
 err1=0;
 err2=0;
 err1_2=0;
@@ -26,25 +25,6 @@ b1 = AS1*M1' - AS2*M2';
 a3 = b1(1);
 a2 = b1(2);
 a1 = -0.5*(M1*AS1*M1' - M2*AS2*M2') + 0.5*log(DS2/DS1);
-tmin = min(class1(:,1));
-tmax = max(class2(:,1));
-tt1 = min(class1, class2);
-tt2 = max(class1, class2);
-t1 = min(tt1);
-t2 = max(tt2);
-t1 = min(t1);
-t2 = max(t2);
-tmin = t1;
-tmax = t2;
-i=1;
-% 2.4
-for t=tmin:((tmax-tmin)/(nMin-1)):tmax,
-    z(i) = t;
-    X = z(i);
-    Y1(i) = (-(a5 * X + a2)+((a5 * X + a2).^2 - 4 * a4 * (a6 * X.^2 + a3 * X + a1)).^0.5)/(2 * a4);
-    Y2(i) = (-(a5 * X + a2)-((a5 * X + a2).^2 - 4 * a4 * (a6 * X.^2 + a3 * X + a1)).^0.5)/(2 * a4);
-    i=i+1;
-end
 %find errors
 % 2.5
 for i=1:n1
@@ -122,7 +102,21 @@ a(4) = a4;
 a(5) = a5;
 a(6) = a6;
 a(7) = c;
-figure(2);
-plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+',z,Y1,'-k', z,Y2,'-k');
-%hold on;
+% 2.4
+if pr == 2
+    tmin = min(min(class1(:)), min(class2(:)));
+    tmax = max(max(class1(:)), max(class2(:)));
+    p = 20;
+    i=1;
+    for t=tmin:((tmax-tmin)/p):tmax,
+        z(i) = t;
+        X = z(i);
+        Y1(i) = (-(a5 * X + a2)+((a5 * X + a2).^2 - 4 * a4 * (a6 * X.^2 + a3 * X + a1)).^0.5)/(2 * a4);
+        Y2(i) = (-(a5 * X + a2)-((a5 * X + a2).^2 - 4 * a4 * (a6 * X.^2 + a3 * X + a1)).^0.5)/(2 * a4);
+        i=i+1;
+    end
+    figure(2);
+    plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+',z,Y1,'-k', z,Y2,'-k');
+    % hold on;
+end
 end

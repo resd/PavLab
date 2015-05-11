@@ -6,6 +6,7 @@ n(1) = 0;
 len = length(n);
 i = 1;
 j = 1;
+% t = 1;
 while ( len ~= pr )
     n = Solve(n, pr);
     s = strvcat(s, mat2str(n));

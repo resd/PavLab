@@ -22,7 +22,7 @@ function varargout = isida(varargin)
 
 % Edit the above text to modify the response to help isida
 
-% Last Modified by GUIDE v2.5 26-Apr-2015 18:42:45
+% Last Modified by GUIDE v2.5 11-May-2015 13:02:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -111,6 +111,8 @@ if isequal(filename,0) || isequal(pathname,0)
     disp('User pressed cancel')
 else
     Open_Callback_Add(strcat(pathname, filename), handles);
+    set(handles.edit3, 'String', '');
+    set(handles.edit7, 'String', '');
 end
 
     
@@ -160,14 +162,14 @@ switch pathIn
         set(handles.edit6, 'String', str);
     case 'mat'
         %load(path);
-        ws = load (path);
         %cl = evalin( 'base', 'class1' );
         %addcl(evalin( 'base', 'class1' ));
         %addcl(evalin( 'base', 'class2' ));
+        ws = load (path);
         cl = ws.class1;
+        setpr(length(cl(1,:)));
         addcl(cl);
         addcl(ws.class2);
-        setpr(length(cl(1,:)));
         str = strcat('Количество признаков: ', num2str(length(cl(1,:))));
         for i = 1:getcllen()
             str = strvcat(str, strcat(num2str(i), ' класс = ', ' ', num2str(length(getcl(i))), ' элементов'));
@@ -363,14 +365,13 @@ end
 switch v1
     case 1% PP
         out = '';
-        cl1 = getcl(len - 1);
-        cl2 = getcl(len);
+%         cl1 = getcl(len - 1);
+%         cl2 = getcl(len);
         %                 cl1(1, :)
         %                 cl2(1, :)
-        [row, col] = size(cl1tt);
         switch v2
             case 1%msr
-                [res, outf] = Am(cl1tt, cl2tt, col, t1);% todo col
+                [res, outf] = Am(cl1tt, cl2tt, t1);% todo col
             case 2%msa
             case 3%ns
         end
@@ -482,8 +483,6 @@ switch v1
         end
     case 3% MK
         out = '';
-        cl1 = getcl(len - 1);
-        cl2 = getcl(len);
         %                 cl1(1, :)
         %                 cl2(1, :)
         [row, col] = size(cl1tt);
@@ -495,6 +494,28 @@ switch v1
         end
         if(len == 2)
             out = strtrim(outf);
+        end
+    case 4
+        out = '';
+        switch v2
+            case 1% MSR
+            case 2% MSA
+            case 3% NS
+        end
+        
+        % only MSR
+        [row, col] = size(cl1tt);
+        [maxP1, ac, outf1] = Am(cl1tt, cl2tt, t1);% todo col
+        [maxP2, outf2] = SokraPer(cl1tt, cl2tt, col, v2, t1);% todo col
+        [maxP3, outf3] = MK(cl1tt, cl2tt, col, v2, t1);% todo col
+        out = strvcat(outf1,outf2,outf3);
+        out = strtrim(out);
+        maxP1, maxP2, maxP3
+%         out
+        plotAllPerms(col);
+        plotAllP(maxP1, maxP2, maxP3);
+        if(len == 2)
+            % todo multi classes
         end
     otherwise% Читаем введенные данные и на их основании выводим результат
         t1 = get(handles.edit7, 'String');%priznaki
@@ -523,7 +544,7 @@ switch v1
         end
         switch v2
             case 1% MSR
-                [res1, a] = rule_lab2_1(cl1t, cl2t);%todo add pr
+                [res1, a] = rule_lab2_1(cl1t, cl2t, length(t1));%todo add pr
                 res2 = Amain(cl1t, cl2t, length(t1));
                 warning('off', 'MATLAB:printf:BadEscapeSequenceInFormat');
                 out = sprintf('Метод статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\n\r\nМодифицированного метод статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\n\r\nРешающие правила:\r\nc = %f\r\na1 = %f\r\na2 = %f\r\na3 = %f\r\na4 = %f\r\na5 = %f\r\na6 = %f', res1(1), res1(2), res1(3),res2(1),res2(2),res2(3),a(7),a(1),a(2),a(3),a(4),a(5),a(6));
@@ -531,7 +552,7 @@ switch v1
             case 2% MSA
                 warning('off', 'all');
 %                 MSA(cl1t, cl2t, length(t1));
-                [res1, a, c1max] = MSAold2(cl1t, cl2t, length(t1), 1);
+                [res1, a, c1max] = MSA(cl1t, cl2t, length(t1), 1);
                 %[res2, outf, c2, c2max] = MSAnew(cl1t, cl2t, length(t1), 2);
                 out = sprintf('Метод стохастической апроксимации:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nЦикл обучения: %d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4));
                 %Метод стохастической апроксимации с коэффициентами из
@@ -539,7 +560,7 @@ switch v1
                 %,res2(1),res2(2),res2(3),c2(1),c2(2),c2(3),c2(4),c2(5),c2(6),c2max(1),c2max(2),c2max(3),c2max(4),c2max(5),c2max(6));
                 out % for Ivan
             case 3% MSA + MSR
-                [res1, a, c1max] = MSAold2(cl1t, cl2t, length(t1), 2);
+                [res1, a, c1max] = MSA(cl1t, cl2t, length(t1), 2);
                 %[res2, outf, c2, c2max] = MSAnew(cl1t, cl2t, length(t1), 2);
                 out = sprintf('Метод стохастической апроксимации с коэффициентами из метода статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nЦикл обучения: %d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4));
                 %Метод стохастической апроксимации с коэффициентами из метода статистических решений:\r\nВероятность  =
@@ -789,9 +810,9 @@ function poVPR_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from poVPR
 
 handles = guidata(hObject);  % Update!
-id = get(handles.poVPR, 'Value');
+v2 = get(handles.poVPR, 'Value');
 % Если выбранный метод не равен МСР, то не нужно задавать значеия
-if(id == 2)
+if(v2 == 2 || v2 == 3)
     set(handles.pushbutton5, 'Enable', 'on');
 else
     set(handles.pushbutton5, 'Enable', 'off');
@@ -938,7 +959,13 @@ function pushbutton5_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %handles = guidata(hObject);  % Update!
-untitled();
+switch get(get(handles.uipanel5,'SelectedObject'),'Tag')
+    case 'rbVPR'
+        v2 = get(handles.poVPR,'Value');
+    otherwise
+        v2 = [];
+end
+uiwait(untitled(v2));
 
 
 % --------------------------------------------------------------------
@@ -954,8 +981,12 @@ function Data_Create_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 clc;
-dataCreate();
-uiwait(dataCreate);
+global resumeFlag;
+resumeFlag = false;
+uiwait(dataCreate());
+if not(resumeFlag)
+    return;
+end
 cl = getcl(1);
 setpr(length(cl(1,:)));
 str = strcat('Количество признаков: ', num2str(length(cl(1,:))));
@@ -990,8 +1021,21 @@ prompt = {'Enter err1:','Enter err2:','Enter C1:','Enter C2:'};
 dlg_title = 'Input';
 num_lines = 1;
 def = {'','','1','1'};
-ans = inputdlg(prompt,dlg_title,num_lines,def);
-a = str2mat(ans);
+answer = inputdlg(prompt,dlg_title,num_lines,def);
+is_validChar = cellfun(@(x) ( isempty(x)), ...
+    answer, 'UniformOutput', true);
+if any(is_validChar)
+    warndlg('Некорректные данные', 'Предупреждение!');
+    return;
+end
+a = cell2mat(answer);
+a = str2num(a);
+is_validNum = arrayfun(@(x) ( x < 0 ), ...
+    a, 'UniformOutput', true);
+if any(is_validNum)
+    warndlg('Некорректные данные', 'Предупреждение!');
+    return;
+end
 q1 = a(2)/100;
 q2 = a(1)/100;
 r = a(3)*q1*1/2 + a(4)*q2*1/2;
@@ -999,29 +1043,16 @@ message = ['Средний риск = ' num2str(r)];
 msgbox(message);
 
 % --------------------------------------------------------------------
-function Untitled_4_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-t1 = get(handles.edit7, 'String');%priznaki
+function plotAllPerms(len)
 x = [];
-if isempty(t1)
-    return;
-else
-    t1 = str2num(t1);
-    tl = length(t1);
-    xl = 1;
-    for i = 0 : 0.005 : tl
-        x(xl) = i;
-        xl = xl+1;
-    end
+len = len + 1;
+% len = 14;%12 14 18
+for i = 1 : len
+    x(i) = i-1;
 end
-for i = 1:tl
-    f(i) = i;
-end
-pp(1:tl) = 0;
+% pp(1:tl) = 0;
 %(n+1)*n/2;
-temp = tl;
+% temp = tl;
 % for n = 1:tl
 %     mk(n) = 10;
 %     sp(n) = temp;
@@ -1033,30 +1064,62 @@ temp = tl;
 %     [e, ert] = size(nchoosek(f, i));
 %     pp(i) = e;
 % end
-for i = 1:tl
-    mk(i) = 10*i;
+m(1) = 0;
+for i = 2:len
+    m(i) = 6*i;
 end
-[e, ert] = size(nchoosek(f, 1));
-pp(1) = e;
-sp(1) = 1;
-for i = 2:tl
-    [e, ert] = size(nchoosek(f, i));
-    pp(i) = pp(i-1) + e;
+pp = zeros(1,len);
+sp = zeros(1,len);
+mk = zeros(1,len);
+[row, ert] = size(nchoosek(x, 1));
+pp(2) = row;
+sp(2) = 1;
+global MKconfigS;
+mk(2) = MKconfigS(1);
+for i = 3:len
+    [row, ert] = size(nchoosek(x, i));
+    pp(i) = pp(i-1) + row;
     sp(i) = sp(i-1) + i;
+    mk(i) = mk(i-1) + MKconfigS(i-1);%floor(row*0.1) + 1
 end
 %length(nchoosek(f, 3))
 % nchoosek(f, 3)
-mk
-sp
-pp
+% m
+% mk
+% sp
+% pp
+mk = m;
 figure('Position',[300 100 800 800])
 hold on;
-plot(t1, pp, 'r-');
-plot(t1, sp, '--');%,'LineWidth',3
-plot(t1, mk, ':b');
+plot(x, pp, 'r-','LineWidth',1.5);
+plot(x, sp, 'b--','LineWidth',1.5);%,'LineWidth',3
+plot(x, mk, ':m','LineWidth',1.5);
 grid on;
+xlabel('Количество признаков');
+ylabel('Объем вычислений');
+% axis auto
+% set(gca, 'XTick',-1:1:tl);
 % plot(t1, 1, 'r+');
 % hold on;
 % plot(class2(:, 1), class2(:, 2), 'ro');
 legend('Полный перебор','Сокращенный перебор','Монте-Карло');
 
+function plotAllP(maxP1, maxP2, maxP3)
+figure(42);
+bar([maxP1;maxP2;maxP3]');
+map = [ 0.5,    0,      0;
+        0,      0.3,    0.5
+        0,      0.5,    0];
+colormap(map)
+grid on;
+ylim([0 100]);
+xlabel('Количество признаков');
+ylabel('Вероятность правильного распознавания');
+legend('Полный перебор','Сокращенный перебор','Монте-Карло');
+
+
+% --------------------------------------------------------------------
+function SaveNowClasees_Callback(hObject, eventdata, handles)
+% hObject    handle to SaveNowClasees (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

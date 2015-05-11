@@ -1,4 +1,4 @@
-function [ out ] = SokraPer( cl1, cl2, pr, v2, t1 )
+function [ maxP, out ] = SokraPer( cl1, cl2, pr, v2, t1 )
 %SOKRAPER Summary of this function goes here
 %   Detailed explanation goes here
 clc;
@@ -22,7 +22,7 @@ nt = length(t);
 msr = [];
 %countLimit = pr * (pr + 1) / 2;
 countLimit = pr - 1;
-out = '';
+out = sprintf('Сокращенный перебор:\nПорядковый номер набора признаков / Вероятность правильного распознавания / Набор признаков\n');
 resmax = 0;
 imax=0;
 for count = 1 : countLimit
@@ -51,11 +51,13 @@ for count = 1 : countLimit
         for e = 1:length(q)
             qq(e) = t1(q(e));
         end
-        str = [num2str(qq)];
-        str = [str '  -  ' num2str(res(1))];
+        %         str = num2str(res(1));
+        %         str = [str '  -  ' [num2str(qq)]];
+        str = sprintf('%d:\t%.2f\t%s',i, res(1), num2str(qq));
         out = strvcat(out, str);
     end
     out;
+    maxP(count) = resmax;
     %msr(count) = imax;
     cos = t(imax, end);
     t(imax, :) = [];
@@ -70,17 +72,17 @@ for count = 1 : countLimit
     resmax = 0;
 end
 q = t(1,:);
-        for e = 1:length(q)
-            qq(e) = t1(q(e));
-        end
-        str = [num2str(qq)];
+for e = 1:length(q)
+    qq(e) = t1(q(e));
+end
 switch v2
     case 1
         res = Amain(cl1, cl2, pr);
     case 2
         res = MSAnew(cl1t, cl2t, col, 1);
 end
-str = [str '  -  ' num2str(res(1))];
-out = strvcat(out, str);
-end
-
+% str = [str '  -  ' [num2str(qq)]];
+% out = sprintf('%d:\t%.2f\t%s',countOut, res(1), num2str(qq));
+str = sprintf('%d:\t%.2f\t%s',1, res(1), num2str(qq));
+out = strvcat(out, str, sprintf('\n'));
+maxP(pr) = res(1);

@@ -3,14 +3,14 @@ function [ res, c0, cmax ] = MSA( class1, class2, pr , vers )
 %   Detailed explanation goes here
 clc;
 
-vers = 2; % 1 - МСА; 2 - Комб
-ws = load ('classessss_3.mat');
-class1 = ws.class1;
-class2 = ws.class2;
+% vers = 2; % 1 - МСА; 2 - Комб
+% ws = load ('classessss_3.mat');
+% class1 = ws.class1;
+% class2 = ws.class2;
 
 % Объявление переменных
 
-Imax = 12; % Количество циклов обучение
+Imax = 20; % Количество циклов обучение
 class1M = mean(class1);
 class2M = mean(class2);
 cnum = 6;
@@ -122,26 +122,27 @@ for (ii = 1:Imax)
 end
 
 % Отображение полинома в пространстве признаков
-
-tmin = min(min(min(class1, class2)));
-tmax = max(max(max(class1, class2)));
-c = cmax;
-p = 20;
-i = 1;
-for t=tmin:((tmax-tmin)/p):tmax,
-    z(i) = t;
-    X = z(i);
-    Y1(i) = (-(c(5) * X + c(2))+((c(5) * X + c(2)).^2 - 4 * c(4) * (c(6) * X.^2 + c(3) * X + c(1))).^0.5)/(2 * c(4));
-    Y2(i) = (-(c(5) * X + c(2))-((c(5) * X + c(2)).^2 - 4 * c(4) * (c(6) * X.^2 + c(3) * X + c(1))).^0.5)/(2 * c(4));
-    i=i+1;
+if pr == 2 
+    tmin = min(min(class1(:)), min(class2(:)));
+    tmax = max(max(class1(:)), max(class2(:)));
+    c = cmax;
+    p = 20;
+    i = 1;
+    for t=tmin:((tmax-tmin)/p):tmax,
+        z(i) = t;
+        X = z(i);
+        Y1(i) = (-(c(5) * X + c(2))+((c(5) * X + c(2)).^2 - 4 * c(4) * (c(6) * X.^2 + c(3) * X + c(1))).^0.5)/(2 * c(4));
+        Y2(i) = (-(c(5) * X + c(2))-((c(5) * X + c(2)).^2 - 4 * c(4) * (c(6) * X.^2 + c(3) * X + c(1))).^0.5)/(2 * c(4));
+        i=i+1;
+    end
+    figure(21);plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+');
+    hold on;
+    % Вот тут
+    plot(z,real(Y1),'-k');
+    plot(z,real(Y2),'-k');
+    % plot(z,imag(Y1),'-k');
+    % plot(z,imag(Y2),'-k');
 end
-figure(21);plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+');
-hold on;
-% Вот тут
-plot(z,real(Y1),'-k');
-plot(z,real(Y2),'-k');
-plot(z,imag(Y1),'-k');
-plot(z,imag(Y2),'-k');
 
 res(1) = Pmax*100;
 res(2) = err1max;

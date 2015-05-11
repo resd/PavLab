@@ -1,6 +1,5 @@
 function [ cell ] = AsortPP( cell, idStart, idEnd)
-%ASORTPP Summary of this function goes here
-%   Detailed explanation goes here
+% —ортировка массив €чеек по возрастанию
 for temp = idStart:idEnd
     for i = idStart:idEnd
         c1 = cell2mat(cell(1, 1 , i));

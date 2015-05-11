@@ -20,10 +20,8 @@ end
 function untitled_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 guidata(hObject, handles);
-if length(varargin) == 1
-    v2 = varargin{1};
-    initialize_gui(hObject, handles, false, v2);
-end
+v2 = varagin{1};
+initialize_gui(hObject, handles, false);
 
 function varargout = untitled_OutputFcn(hObject, eventdata, handles) 
 varargout{1} = handles.output;
@@ -46,12 +44,6 @@ end
 
 function Calculate_Callback(hObject, eventdata, handles)
 
-ini = IniConfig();
-ini.ReadFile('config.ini');
-section = '[dataMSA]';
-keys = ini.GetKeys(section);
-Imax = str2num(get(handles.Imax, 'String'));
-ini.SetValues(section, keys{1}, Imax);
 c = [];
 if(get(handles.checkbox1, 'Value') == 0)
     c(1) = str2num(get(handles.c1, 'String'));
@@ -60,44 +52,38 @@ if(get(handles.checkbox1, 'Value') == 0)
     c(4) = str2num(get(handles.c4, 'String'));
     c(5) = str2num(get(handles.c5, 'String'));
     c(6) = str2num(get(handles.c6, 'String'));
-    ini.SetValues(section, keys{2}, c);
 end
-ini.WriteFile('config.ini');
-close(untitled);
+Imax = str2num(get(handles.Imax, 'String'));
+cb = get(handles.checkbox1, 'Value');
+setMSAdata(c, Imax, cb);
 % todo Запилить закрытие окна здесь.
 
-function initialize_gui(fig_handle, handles, isreset, v2)
+function initialize_gui(fig_handle, handles, isreset)
 
 % if isfield(handles, 'metricdata')
 %     return;
 % end
-if v2 == 2
-    set(handles.checkbox1, 'Value', 0);
-else if v2 == 3
-        set(handles.checkbox1, 'Value', 1);
-    end
-end
 ini = IniConfig();
-ini.ReadFile('config/config.ini');
+ini.ReadFile('config.ini');
 section = '[dataMSA]';
 keys = ini.GetKeys(section);
-values = ini.GetValues(section, keys);
-if(not(isempty(values)))
-    if(not(isempty(values{1})))
-        set(handles.Imax, 'String', values{1});
-    end
-    if(not(isempty(values{2})))
-        c = values{2};
-        set(handles.c1, 'String', c(1));
-        set(handles.c2, 'String', c(2));
-        set(handles.c3, 'String', c(3));
-        set(handles.c4, 'String', c(4));
-        set(handles.c5, 'String', c(5));
-        set(handles.c6, 'String', c(6));
-    end
+values = ini.getValues(keys);
+Imaxt = values{1};
+c = values{2};
+if(not(isempty(c)))
+    set(handles.c1, 'String', c(1));
+    set(handles.c2, 'String', c(2));
+    set(handles.c3, 'String', c(3));
+    set(handles.c4, 'String', c(4));
+    set(handles.c5, 'String', c(5));
+    set(handles.c6, 'String', c(6));
+end
+if(not(isempty(Imaxt)))
+    set(handles.Imax, 'String', Imaxt);
 end
 if(not(isempty(v2)))
-    if(v2 == 3)
+    set(handles.checkbox1, 'Value', cbt);
+    if(get(handles.checkbox1, 'Value') == 1)
         set(handles.c1, 'Enable', 'off');
         set(handles.c2, 'Enable', 'off');
         set(handles.c3, 'Enable', 'off');

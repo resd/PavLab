@@ -1,4 +1,4 @@
-function [ out ] = MK( cl1, cl2, pr, v2 )
+function [ maxP, out ] = MK( cl1, cl2, pr, v2 , t1)
 %MK Summary of this function goes here
 %   Detailed explanation goes here
 clc;
@@ -13,14 +13,17 @@ end
 % cl2 = ws.class2;
 % /todo
 k = 2; % количество выбираемых за 1 шаг перестановок из pr
-out = '';
+out = sprintf('ћетод ћонте- арло:\nћаксимальна€ веро€тность правильного распознавани€ дл€ каждого набора признаков / Ќабор признаков\n');
+maxP = [];
 
 for q = 1:pr-1
     prp = nchoosek(w, q);    % текуща€ выборка по признаком i
     [prl, col] = size(prp);       % длина текущей выборки
     t = 1 / prl;            % количество интервалов
-    h = t / 10;             % велечина, на которую мен€етс€ интервал
-    s = 5;                % количество сравнений
+    addpath config
+    [h, s] = MKconfig(t, prl);
+    rmpath config
+    %     s = 5; %floor(row*0.1) + 1
     len(1 : prl) = t;
     for i = 1 : prl
         diap(i) = i / prl;  % значени€ дл€ каждого эл-та выборки
@@ -85,9 +88,9 @@ for q = 1:pr-1
     end
     %diap
     len;
-%     for j = 1 : 5
-%         Amain(cl1(:, prp(j)), cl2(:, prp(j)), 1);
-%     end
+    %     for j = 1 : 5
+    %         Amain(cl1(:, prp(j)), cl2(:, prp(j)), 1);
+    %     end
     %prp = [1 2; 2 3; 3 4; 5 6; 6 7];
     % for i = 1: prl
     %     ii(i) = i;
@@ -109,12 +112,30 @@ for q = 1:pr-1
         cl12(:, i) = cl2(:, prp(imax, i));
     end
     res = Amain(cl11, cl12, col);
-    out1 = ['i = ' num2str(q)];
-    out2 = [num2str(prp(imax,:)) '   ' num2str(res(1))];
-    out = strvcat(out, out1, out2);
+    %out1 = ['i = ' num2str(q)];
+    q = prp(imax,:);
+    for e = 1:length(q)
+        qq(e) = t1(q(e));
+    end
+    %     str = [num2str(qq)];
+    %     out2 = [num2str(res(1)) '  -  ' str];
+    %     out = strvcat(out, out2);
+    str = sprintf('%.2f\t%s', res(1), num2str(qq));
+    out = strvcat(out, str);
+    maxP(i) = res(1);
 end
 
-
+q = w;
+for e = 1:length(q)
+    qq(e) = t1(q(e));
+end
+res = Amain(cl1, cl2, pr);
+str = sprintf('%.2f\t%s', res(1), num2str(qq));
+out = strvcat(out, str);
+maxP(pr) = res(1);
+% str = [num2str(qq)];
+% out2 = [num2str(res(1)) '  -  ' str];
+% out = strvcat(out, out2);
 
 
 function b = find(sk, prl, diap)

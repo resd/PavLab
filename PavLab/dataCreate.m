@@ -22,7 +22,7 @@ function varargout = dataCreate(varargin)
 
 % Edit the above text to modify the response to help dataCreate
 
-% Last Modified by GUIDE v2.5 18-Apr-2015 15:39:13
+% Last Modified by GUIDE v2.5 08-May-2015 21:10:03
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -43,7 +43,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before dataCreate is made visible.
 function dataCreate_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -60,7 +59,35 @@ guidata(hObject, handles);
 
 % UIWAIT makes dataCreate wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+ini = IniConfig();
+ini.ReadFile('config/config.ini');
+section = '[dataCreate]';
+sectionMean = '[dataCreateMean]';
+sectionVar = '[dataCreateVar]';
+keys = ini.GetKeys(section);
+values = ini.GetValues(section, keys);
+keys = ini.GetKeys(sectionMean);
+valuesMean = ini.GetValues(sectionMean, keys);
+valuesMean1 = valuesMean{1};
+valuesMean2 = valuesMean{2};
+keys = ini.GetKeys(sectionVar);
+valuesVar = ini.GetValues(sectionVar, keys);
+valuesVar1 = valuesVar{1};
+valuesVar2 = valuesVar{2};
+set(handles.edit1 , 'String', num2str(values{1}));
+set(handles.edit2 , 'String', num2str(values{2}));
+set(handles.edit3 , 'String', num2str(values{3}));
+set(handles.popupmenu2 , 'Value', values{4});
 
+set(handles.edit4 , 'String', valuesMean1(1));
+set(handles.edit5 , 'String', valuesMean1(2));
+set(handles.edit6 , 'String', valuesMean2(1));
+set(handles.edit7 , 'String', valuesMean2(2));
+
+set(handles.edit8 , 'String', valuesVar1(1));
+set(handles.edit9 , 'String', valuesVar1(2));
+set(handles.edit10 , 'String', valuesVar2(1));
+set(handles.edit11 , 'String', valuesVar2(2));
 
 % --- Outputs from this function are returned to the command line.
 function varargout = dataCreate_OutputFcn(hObject, eventdata, handles) 
@@ -82,13 +109,14 @@ function togglebutton2_Callback(hObject, eventdata, handles)
 
 clc;
 %get(handles.edit2 , 'String')
-% if isempty(get(handles.edit2 , 'String')) || isempty(get(handles.edit3 , 'String')) ||     isempty(get(handles.edit4 , 'String')) || isempty(get(handles.edit5 , 'String')) ||    isempty(get(handles.edit6 , 'String')) || isempty(get(handles.edit7 , 'String')) ||   isempty(get(handles.edit8 , 'String')) || isempty(get(handles.edit9 , 'String')) ||    isempty(get(handles.edit10 , 'String')) || isempty(get(handles.edit11 , 'String')) || isempty(get(handles.edit1 , 'String')) || (get(handles.checkbox1, 'Value') == 1 && isempty(get(handles.edit15 , 'String')))
-%      %disp('Все поля должны быть заполнены!');
-%      fprintf(2,'Ошибка! Все поля должны быть заполнены!\n');
-%      %button = questdlg('qstring'); % todo Переписть файл? Как?
-%      return;
-% end
-
+if isempty(get(handles.edit2 , 'String')) || isempty(get(handles.edit3 , 'String')) ||     isempty(get(handles.edit4 , 'String')) || isempty(get(handles.edit5 , 'String')) ||    isempty(get(handles.edit6 , 'String')) || isempty(get(handles.edit7 , 'String')) ||   isempty(get(handles.edit8 , 'String')) || isempty(get(handles.edit9 , 'String')) ||    isempty(get(handles.edit10 , 'String')) || isempty(get(handles.edit11 , 'String')) || isempty(get(handles.edit1 , 'String')) || (get(handles.checkbox1, 'Value') == 1 && isempty(get(handles.edit15 , 'String')))
+     %disp('Все поля должны быть заполнены!');
+     fprintf(2,'Ошибка! Все поля должны быть заполнены!\n');
+     %button = questdlg('qstring'); % todo Переписть файл? Как?
+     return;
+end
+global resumeFlag;
+resumeFlag = true;
 n = str2num(get(handles.edit1 , 'String'));
 N= str2num(get(handles.edit2 , 'String'));
 pr= str2num(get(handles.edit3 , 'String'));
@@ -97,11 +125,31 @@ class2M = [str2num(get(handles.edit6 , 'String')), str2num(get(handles.edit7 , '
 class1D  = [str2num(get(handles.edit8 , 'String')), str2num(get(handles.edit9 , 'String'))];
 class2D = [str2num(get(handles.edit10 , 'String')), str2num(get(handles.edit11 , 'String'))];
 lawflag = get(handles.popupmenu2, 'Value') == 1;
+lawValue = get(handles.popupmenu2, 'Value');
 fileflag = get(handles.checkbox1, 'Value') == 1;
 file = get(handles.edit15 , 'String');
 file = 'classes.mat';
 str = AT_autolab( N, n, pr, class1M, class2M, class1D, class2D, lawflag, fileflag, file);
 setStr(str);
+set(handles.checkbox2, 'Value', 1);
+if (get(handles.checkbox2, 'Value') == 1)
+    ini = IniConfig();
+    ini.ReadFile('config/config.ini');
+    section = '[dataCreate]';
+    sectionMean = '[dataCreateMean]';
+    sectionVar = '[dataCreateVar]';
+    keys = ini.GetKeys(section);
+    keysMean = ini.GetKeys(sectionMean);
+    keysVar = ini.GetKeys(sectionVar);
+    values = {n; N; pr; lawValue};
+    valuesMean = {class1M; class2M};
+    valuesVar = {class1D; class2D};
+    ini.SetValues(section, keys, values);
+    ini.SetValues(sectionMean, keysMean{1}, valuesMean{1});
+    ini.SetValues(sectionMean, keysMean{2}, valuesMean{2});
+    ini.SetValues(sectionVar, keysVar, valuesVar);
+    ini.WriteFile('config/config.ini');
+end
 close(dataCreate);
 
 function edit2_Callback(hObject, eventdata, handles)
@@ -124,7 +172,6 @@ function edit2_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function edit3_Callback(hObject, eventdata, handles)
@@ -264,7 +311,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function edit9_Callback(hObject, eventdata, handles)
 % hObject    handle to edit9 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -356,7 +402,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function edit15_Callback(hObject, eventdata, handles)
 % hObject    handle to edit15 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -377,7 +422,6 @@ function edit15_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function edit1_Callback(hObject, eventdata, handles)
@@ -420,3 +464,11 @@ function checkbox1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to checkbox1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+% --- Executes on button press in checkbox2.
+function checkbox2_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox2
