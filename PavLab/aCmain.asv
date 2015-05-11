@@ -1,0 +1,40 @@
+function [  ] = aCmain(  )
+%AC Summary of this function goes here
+%   Detailed explanation goes here
+global  ob cov mo pr;
+load output;
+pr = 2;
+n = 100;
+mo = evalin('base', 'mo');
+cov = evalin('base', 'cov');
+det = evalin('base', 'det');
+ob = evalin('base', 'class1');
+p = evalin('base', 'result');
+p = p(4);
+
+for i = 1:n
+    cl = 1;
+    nrp = 0;
+    flag = true;
+    while flag 
+        sl1 = xlk(1);
+        sl2 = xlk(2);
+        l = det(2)/det(1);
+        l = log(l);
+        rr = (l - sl1 + sl2) / 2;
+        if (rr <= p)
+            cod = 222;
+        else
+            cod = 111;
+        end
+	    if (cod == 111)
+            break;
+        end
+        cl = cl + 1;
+        nrp = nrp + 1;  % Следующее РП (нумерация от 0)
+        flag = nrp < crp;
+    end
+    fprintf('%4d   %15.8f  %10d\n', i + 1, rr, cl);
+end
+end
+

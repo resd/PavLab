@@ -1,0 +1,35 @@
+function [ str ] = AT_autolab( N, n, pr, class1M, class2M, class1D, class2D, lawflag, fileflag, file )
+%AT_LAB2 Summary of this function goes here
+%   Detailed explanation goes here
+clearclpr();
+% Разкомментировать функцию, сооответственно варианта
+if lawflag
+    %для равномерного закона распределения
+    class1 = uniformClass(pr, N, class1M, class1D);
+    class2 = uniformClass(pr, N, class2M, class2D);
+else
+    %для нормального закона распределения
+    class1 = normalClass(pr, N, class1M, class1D);
+    class2 = normalClass(pr, N, class2M, class2D);
+end
+% Запись полученных классов в файл
+if fileflag
+    q = 1;
+    while (exist(file, 'file')) == 2
+        f = file(length(file)-5:length(file)-4);
+        if 
+        file = [file(1:length(file)-4) num2str(q) file(length(file)-3:length(file))];
+        q = q + 1;
+    end
+    save (file, 'class1', 'class2');
+end
+addcl(class1);
+addcl(class2);
+setpr(pr);
+str = strcat('Количество признаков: ', pr);
+for i = 1:getcllen()
+    str = strvcat(str, strcat(num2str(i), [' класс = ' ' '], num2str(length(getcl(getcllen()))), ' элементов'));
+end
+%set(handles.edit6, 'String', str);
+end
+

@@ -1,0 +1,12 @@
+function s = Main(a)
+% 
+n = [0,1,2,3]; % Задаем начальное условие.
+a = 210;
+s = '';
+for i = 1:k
+n = Solve(n);
+s = strvcat(s, mat2str(n));
+%disp(n);
+end;
+%q = n;
+end
