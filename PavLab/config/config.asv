@@ -1,4 +1,4 @@
-c; example.ini -- INI file example for the class INiConfig
+c=c    ; example.ini -- INI file example for the class INiConfig
 ; UPD: 21.03.2010
 
 ; Supported whitespaces in section names
@@ -30,21 +30,32 @@ key.01=2.45e-005    ; %e format
 
 [dataCreate]
 classCount=2
-classElementCount=100
+classElementCount=5
 classSignCount=2
-rule=1
+rule=2
 
 [dataCreateMean]
-class1=1 2
-class2=3 4
+class1=1, 1
+class2=20, 20
 
 [dataCreateVar]
-class1=5 6
-class2=7 8
+class1=10, 10
+class2=20, 20
 
 [dataMSA]
-ImaxCount=2024
-c=1, 41, 1, 2, 14, 12
+ImaxCount=20
+c=1, 1, 1, 1, 1, 1
+
+[dataPerceptron]
+edit = false        ; ...
+trainCount   = 20   ; Enter the number of training cycles
+layersCount  = 2    ; Enter the number of layers
+neuronsCount = 200  ; Enter the number of neurons in the layer
+
+[dataNS]
+; найтройки сети
+; точность распознавания
+...
 
 [Path]
 classes=classes.mat

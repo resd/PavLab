@@ -1,8 +1,5 @@
-%-------------------------------------LAB6
 clc;
-
-s=sprintf('%s','LAB6:');disp(s);
-
+clear all;
 %настройки программы
 N=20;      %количество объектов в обучающей выборке
 s=20;       %количество циклов обучения
@@ -44,23 +41,17 @@ y
 %{'tansig','purelin'} - активационные функции слоев
 net=newff(minmax(X),[20,1],{'tansig','purelin'});
 %net=newff(minmax(X),[20,1],{'tansig','tansig','purelin'},'traingd');
-
-
 %Настройка обучениа сети
 net.trainParam.show = 20;       %врема обновлениа графика обучениа сети
 net.trainParam.lr = 0.01;       
 net.trainParam.epochs = 100;    %врема обучениа сети
 net.trainParam.goal = 5e-2;     %точность обучениа сети
-
 %обучение сети обратного распространениа
 [net,tr]=train(net,X,y);
-
 %определение ошибок 1 и 2 рода и вероатности правильного распознаваниа
 s = sim(net,X);
-
 s1 = s(1,1:2*N);
 s1
-
 err1=0;
 err2=0;
 for i=1:1:(2*N)
@@ -71,9 +62,7 @@ for i=1:1:(2*N)
         err2=err2+1;
     end
 end
-
 tppr = (1 - (err1 + err2) / (N + N)) * 100.0;
-
 err1
 err2
 tppr

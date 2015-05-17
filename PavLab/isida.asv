@@ -508,8 +508,6 @@ switch v1
         [maxP1, ac, outf1] = Am(cl1tt, cl2tt, t1);% todo col
         [maxP2, outf2] = SokraPer(cl1tt, cl2tt, col, v2, t1);% todo col
         [maxP3, outf3] = MK(cl1tt, cl2tt, col, v2, t1);% todo col
-<<<<<<< HEAD
-<<<<<<< HEAD
         %         maxP1, maxP2, maxP3
         ss = sprintf('Порядковый номер набора признаков / Полный перебор / Сокращенный перебор / Метод Монте-Карло\n');
         for m = 1:length(maxP1)
@@ -520,17 +518,10 @@ switch v1
         out = strvcat(ss, outf1,outf2,outf3);
         out = strtrim(out);
         disp(out);
-=======
-=======
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
         out = strvcat(outf1,outf2,outf3);
         out = strtrim(out);
         maxP1, maxP2, maxP3
 %         out
-<<<<<<< HEAD
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
-=======
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
         plotAllPerms(col);
         plotAllP(maxP1, maxP2, maxP3);
         if(len == 2)
@@ -567,15 +558,9 @@ switch v1
                 res2 = Amain(cl1t, cl2t, length(t1));
                 warning('off', 'MATLAB:printf:BadEscapeSequenceInFormat');
                 out = sprintf('Метод статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\n\r\nМодифицированного метод статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\n\r\nРешающие правила:\r\nc = %f\r\na1 = %f\r\na2 = %f\r\na3 = %f\r\na4 = %f\r\na5 = %f\r\na6 = %f', res1(1), res1(2), res1(3),res2(1),res2(2),res2(3),a(7),a(1),a(2),a(3),a(4),a(5),a(6));
-<<<<<<< HEAD
-<<<<<<< HEAD
                 disp(out);
-=======
                 out % for Ivan
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
-=======
                 out % for Ivan
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
             case 2% MSA
                 warning('off', 'all');
 %                 MSA(cl1t, cl2t, length(t1));
@@ -584,16 +569,10 @@ switch v1
                 out = sprintf('Метод стохастической апроксимации:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nЦикл обучения: %d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4));
                 %Метод стохастической апроксимации с коэффициентами из
                 %метода статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f
-                %,res2(1),res2(2),res2(3),c2(1),c2(2),c2(3),c2(4),c2(5),c2(6),c2max(1),c2max(2),c2max(3),c2max(4),c2max(5),c2max(6));
-<<<<<<< HEAD
-<<<<<<< HEAD
-                disp(my_decoder(out));
-=======
+                %,res2(1),res2(2),res2(3),c2(1),c2(2),c2(3),c2(4),c2(5),c2(
+                %6),c2max(1),c2max(2),c2max(3),c2max(4),c2max(5),c2max(6));
+                disp(out);
                 out % for Ivan
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
-=======
-                out % for Ivan
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
             case 3% MSA + MSR
                 [res1, a, c1max] = MSA(cl1t, cl2t, length(t1), 2);
                 %[res2, outf, c2, c2max] = MSAnew(cl1t, cl2t, length(t1), 2);
@@ -602,14 +581,18 @@ switch v1
                 %%f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f
                 %,res2(1),res2(2),res2(3),c2(1),c2(2),c2(3),c2(4),c2(5),c2(
                 %6),c2max(1),c2max(2),c2max(3),c2max(4),c2max(5),c2max(6));
-<<<<<<< HEAD
-<<<<<<< HEAD
-                disp(my_decoder(out));
-=======
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
-=======
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
-            case 4% NS
+                disp(out);
+            case 4% Perceptroni
+%                 ini = IniConfig();
+%                 ini.ReadFile('config/config.ini');
+%                 section = '[dataPerceptron]';
+%                 keys = ini.GetKeys(section);
+%                 values = ini.GetValues(section, keys);
+%                 trainCount = values{1};
+                [res1, w] = lab5With2Neuron(cl1t, cl2t, length);
+                out = sprintf('Перцептрон:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nВесовые коэффициенты W нейронной сети:\r\n%f, %f;\r\n%f, %f\r\nЦикл обучения: %d\r\n',res1(1), res1(2), res1(3),w(1),w(2),w(3),w(4),res1(4));
+                disp(out);
+            case 5% NS
         end
         %res = Amain(cl1t, cl2t, length(t1));
         %out = sprintf('Вероятность  =  %f\r\nОшибка 1 рода  =  %f\r\nОшибка 2 рода  =  %f\r\n', res(1), res(2), res(3));
@@ -854,7 +837,7 @@ function poVPR_Callback(hObject, eventdata, handles)
 handles = guidata(hObject);  % Update!
 v2 = get(handles.poVPR, 'Value');
 % Если выбранный метод не равен МСР, то не нужно задавать значеия
-if(v2 == 2 || v2 == 3)
+if(v2 == 2 || v2 == 3 )%|| v2 == 4 || v2 == 5) % todo
     set(handles.pushbutton5, 'Enable', 'on');
 else
     set(handles.pushbutton5, 'Enable', 'off');
@@ -1005,9 +988,47 @@ switch get(get(handles.uipanel5,'SelectedObject'),'Tag')
     case 'rbVPR'
         v2 = get(handles.poVPR,'Value');
     otherwise
-        v2 = [];
+        return;
 end
-uiwait(untitled(v2));
+if (v2 == 2 || v2 == 3) % MSA || MSA + MSR
+    uiwait(untitled(v2));
+else if (v2 == 4) % Perceptron
+        ini = IniConfig();
+        ini.ReadFile('config/config.ini');
+        section = '[dataPerceptron]';
+        keys = ini.GetKeys(section);
+        values = ini.GetValues(section, keys);
+        trainCount = values{1};
+        prompt={'Enter the number of training cycles:',...
+        'Enter the number of layers:', ...
+        'Enter the number of neurons in the layer'};
+        name='Input of the percetron';
+        numlines=1;
+        defaultanswer={trainCount, num2str(getpr()), num2str(getcllen())};
+        answer=inputdlg(prompt,name,numlines,defaultanswer);
+        is_validChar = cellfun(@(x) ( isempty(x)), ...
+            answer, 'UniformOutput', true);
+        if any(is_validChar)
+            warndlg('Некорректные данные', 'Предупреждение!');
+            return;
+        end
+        a = cell2mat(answer);
+        a = str2num(a);
+        is_validNum = arrayfun(@(x) ( x < 0 ), ...
+            a, 'UniformOutput', true);
+        if any(is_validNum)
+            warndlg('Некорректные данные', 'Предупреждение!');
+            return;
+        end
+        ini.SetValues(section, keys, a(1));
+        ini.WriteFile('config/config.ini');
+        setNS('layers', a(2));
+        setNS('neurons', a(3));
+    else if (v2 == 5) % NS
+            uiwait();
+        end
+    end
+end
 
 
 % --------------------------------------------------------------------
@@ -1165,8 +1186,6 @@ function SaveNowClasees_Callback(hObject, eventdata, handles)
 % hObject    handle to SaveNowClasees (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-<<<<<<< HEAD
-<<<<<<< HEAD
 file = 'classes.mat';
 if getcllen() < 0
     disp('Классы не загруженны');
@@ -1185,7 +1204,3 @@ while (exist(file, 'file')) == 2
     q = q + 1;
 end
 save (file, 'class1', 'class2');
-=======
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c
-=======
->>>>>>> f8b8063340fe7b6896d3f4d22032c90c5030af2c

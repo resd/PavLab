@@ -106,7 +106,7 @@ a(7) = c;
 if pr == 2
     tmin = min(min(class1(:)), min(class2(:)));
     tmax = max(max(class1(:)), max(class2(:)));
-    p = 20;
+    p = 1000;
     i=1;
     for t=tmin:((tmax-tmin)/p):tmax,
         z(i) = t;
@@ -115,8 +115,33 @@ if pr == 2
         Y2(i) = (-(a5 * X + a2)-((a5 * X + a2).^2 - 4 * a4 * (a6 * X.^2 + a3 * X + a1)).^0.5)/(2 * a4);
         i=i+1;
     end
+    arrayInd = [];
+    arrayCount = 1;
+    flagImag = false;
+    zLen = length(z);
+    for i = 1:zLen
+        if isreal(Y1(i)) == 0
+            arrayInd(arrayCount) = i;
+            arrayCount = arrayCount + 1;
+            flagImag = true;
+        end
+    end
+    for i = length(arrayInd):-1:1
+        z(arrayInd(i)) = [];
+        Y1(arrayInd(i)) = [];
+        Y2(arrayInd(i)) = [];
+    end
     figure(2);
-    plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+',z,Y1,'-k', z,Y2,'-k');
-    % hold on;
+    plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+');
+    hold on;
+    plot(z,real(Y1),'-k');
+    plot(z,real(Y2),'-k');
+    if flagImag
+        zLen = length(z);
+%         Соеденить конци  Y1 и Y2
+        plot([z(1), z(1)],[Y1(1), Y2(1)],'-k');
+        plot([z(zLen), z(zLen)],[Y1(zLen), Y2(zLen)],'-k');
+    end
+    hold off;
 end
 end
