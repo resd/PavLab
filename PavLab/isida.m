@@ -371,7 +371,7 @@ switch v1
         %                 cl2(1, :)
         switch v2
             case 1%msr
-                [res, outf] = Am(cl1tt, cl2tt, t1);% todo col
+                [res, ac, outf] = Am(cl1tt, cl2tt, t1);% todo col
             case 2%msa
             case 3%ns
         end
@@ -386,10 +386,6 @@ switch v1
             for i = len-1: -1 :2
                 cl1 = getcl(i-1);
                 cl2 = getcli(i, len);
-                %                     i
-                %                     cl1(1, :)
-                %                     cl2(1, :)
-                %                     cl2(101, :)
                 switch v2
                     case 1%msr
                         [res, outf] = Am(cl1, cl2, pr);
@@ -470,7 +466,7 @@ switch v1
         %                 cl1(1, :)
         %                 cl2(1, :)
         [row, col] = size(cl1tt);
-        [outf] = SokraPer(cl1tt, cl2tt, col, v2, t1);% todo col
+        [maxP, outf] = SokraPer(cl1tt, cl2tt, col, v2, t1);% todo col
 %         switch v2
 %             case 1%msr
 %                 [outf] = SokraPer(cl1, cl2, pr, v2);
@@ -488,7 +484,7 @@ switch v1
         [row, col] = size(cl1tt);
         switch v2
             case 1%msr
-                outf = MK(cl1tt, cl2tt, col, v2, t1);% todo col
+                 [maxP, outf] = MK(cl1tt, cl2tt, col, v2, t1);% todo col
             case 2%msa
             case 3%ns
         end
@@ -518,9 +514,8 @@ switch v1
         out = strvcat(ss, outf1,outf2,outf3);
         out = strtrim(out);
         disp(out);
-        out = strvcat(outf1,outf2,outf3);
         out = strtrim(out);
-        maxP1, maxP2, maxP3
+%         maxP1, maxP2, maxP3
 %         out
         plotAllPerms(col);
         plotAllP(maxP1, maxP2, maxP3);
@@ -566,7 +561,7 @@ switch v1
 %                 MSA(cl1t, cl2t, length(t1));
                 [res1, a, c1max] = MSA(cl1t, cl2t, length(t1), 1);
                 %[res2, outf, c2, c2max] = MSAnew(cl1t, cl2t, length(t1), 2);
-                out = sprintf('Метод стохастической апроксимации:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nЦикл обучения: %d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4));
+                out = sprintf('Метод стохастической апроксимации:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nРезультат найден на цикле обучения: %d из %d%d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4),res1(5));
                 %Метод стохастической апроксимации с коэффициентами из
                 %метода статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f
                 %,res2(1),res2(2),res2(3),c2(1),c2(2),c2(3),c2(4),c2(5),c2(
@@ -576,7 +571,7 @@ switch v1
             case 3% MSA + MSR
                 [res1, a, c1max] = MSA(cl1t, cl2t, length(t1), 2);
                 %[res2, outf, c2, c2max] = MSAnew(cl1t, cl2t, length(t1), 2);
-                out = sprintf('Метод стохастической апроксимации с коэффициентами из метода статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nЦикл обучения: %d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4));
+                out = sprintf('Метод стохастической апроксимации с коэффициентами из метода статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nРезультат найден на цикле обучения: %d из %d%d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4),res1(5));
                 %Метод стохастической апроксимации с коэффициентами из метода статистических решений:\r\nВероятность  =
                 %%f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f
                 %,res2(1),res2(2),res2(3),c2(1),c2(2),c2(3),c2(4),c2(5),c2(
@@ -590,7 +585,7 @@ switch v1
 %                 values = ini.GetValues(section, keys);
 %                 trainCount = values{1};
                 [res1, w] = lab5With2Neuron(cl1t, cl2t, length(t1));
-                out = sprintf('Перцептрон:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nВесовые коэффициенты W нейронной сети:\r\n%f, %f;\r\n%f, %f\r\nЦикл обучения: %d\r\n',res1(1), res1(2), res1(3),w(1),w(2),w(3),w(4),res1(4));
+                out = sprintf('Перцептрон:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nВесовые коэффициенты W нейронной сети:\r\n%f, %f;\r\n%f, %f\r\nРезультат найден на цикле обучения: %d из %d\r\n',res1(1), res1(2), res1(3),w(1),w(2),w(3),w(4),res1(4),res1(5));
                 disp(out);
             case 5% NS
                 [res1, a] = lab6DontWork(cl1t, cl2t, length(t1));
@@ -1111,49 +1106,26 @@ msgbox(message);
 % --------------------------------------------------------------------
 function plotAllPerms(len)
 x = [];
-len = len + 1;
-% len = 14;%12 14 18
 for i = 1 : len
-    x(i) = i-1;
+    x(i) = i;
 end
-% pp(1:tl) = 0;
-%(n+1)*n/2;
-% temp = tl;
-% for n = 1:tl
-%     mk(n) = 10;
-%     sp(n) = temp;
-%     temp = temp - 1;
-% end
-% % pp(1) = length(nchoosek(f, 1));
-% for i = 1:tl
-% %     pp(i) = pp(i-1) + length(nchoosek(f, i));
-%     [e, ert] = size(nchoosek(f, i));
-%     pp(i) = e;
-% end
-m(1) = 0;
-for i = 2:len
+for i = 1:len
     m(i) = 6*i;
 end
 pp = zeros(1,len);
 sp = zeros(1,len);
 mk = zeros(1,len);
 [row, ert] = size(nchoosek(x, 1));
-pp(2) = row;
-sp(2) = 1;
+pp(1) = row;
+sp(1) = 1;
 global MKconfigS;
-mk(2) = MKconfigS(1);
-for i = 3:len
+mk(1) = MKconfigS(1);
+for i = 2:len
     [row, ert] = size(nchoosek(x, i));
     pp(i) = pp(i-1) + row;
     sp(i) = sp(i-1) + i;
     mk(i) = mk(i-1) + MKconfigS(i-1);%floor(row*0.1) + 1
 end
-%length(nchoosek(f, 3))
-% nchoosek(f, 3)
-% m
-% mk
-% sp
-% pp
 mk = m;
 figure('Position',[300 100 800 800])
 hold on;

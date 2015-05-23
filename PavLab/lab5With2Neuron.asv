@@ -80,7 +80,7 @@ for j=1:1:s
         W(2,1) = W(2,1) + y2*class01(i,1);
         W(2,2) = W(2,2) + y2*class01(i,2);
     end
-    pn(j) = Pmax*100;
+    pn(j) = Pmax;
 end
 w = Wmax(:);
 % plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+');
@@ -103,21 +103,11 @@ w = Wmax(:);
 % P
 % err1
 % err2
-figure(10);
-bar(pn);
-map = [ 0,      0.3,    0.5 ];
-colormap(map)
-grid on;
-ylim([0 100]);
-   % Нужен график зависимости показателя ВПР от числа циклов (эпох)
-xlabel('Число циклов(эпох)');
-ylabel('Вероятность правильного распознавания');
-legend('Полный перебор');
+bar(s, pn, 'r');
 res(1) = Pmax*100; % 54.5
 res(2) = err1max; % 50
 res(3) = err2max; % 41
 res(4) = jjmax  ; % 24
-res(5) = s;
 % Wmax
 
 end

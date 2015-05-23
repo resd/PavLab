@@ -170,6 +170,6 @@ res(1) = Pmax*100;
 res(2) = err1max;
 res(3) = err2max;
 res(4) = iimax;
-res(5) = jjmax;
+res(5) = Imax;
 end
 

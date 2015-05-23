@@ -109,7 +109,7 @@ function togglebutton2_Callback(hObject, eventdata, handles)
 
 clc;
 %get(handles.edit2 , 'String')
-if isempty(get(handles.edit2 , 'String')) || isempty(get(handles.edit3 , 'String')) ||     isempty(get(handles.edit4 , 'String')) || isempty(get(handles.edit5 , 'String')) ||    isempty(get(handles.edit6 , 'String')) || isempty(get(handles.edit7 , 'String')) ||   isempty(get(handles.edit8 , 'String')) || isempty(get(handles.edit9 , 'String')) ||    isempty(get(handles.edit10 , 'String')) || isempty(get(handles.edit11 , 'String')) || isempty(get(handles.edit1 , 'String')) || (get(handles.checkbox1, 'Value') == 1 && isempty(get(handles.edit15 , 'String')))
+if isempty(get(handles.edit2 , 'String')) || isempty(get(handles.edit3 , 'String')) ||     isempty(get(handles.edit4 , 'String')) || isempty(get(handles.edit5 , 'String')) ||    isempty(get(handles.edit6 , 'String')) || isempty(get(handles.edit7 , 'String')) ||   isempty(get(handles.edit8 , 'String')) || isempty(get(handles.edit9 , 'String')) ||    isempty(get(handles.edit10 , 'String')) || isempty(get(handles.edit11 , 'String')) || isempty(get(handles.edit1 , 'String'))
      %disp('Все поля должны быть заполнены!');
      fprintf(2,'Ошибка! Все поля должны быть заполнены!\n');
      %button = questdlg('qstring'); % todo Переписть файл? Как?
