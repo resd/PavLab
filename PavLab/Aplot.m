@@ -8,14 +8,18 @@ function [  ] = Aplot( class1, class2 , pr)%, z, Y1, Y2
 % end
 switch pr
     case 3
-        plot(class1(:,1),class1(:,2), class1(:, 3),'ro',class2(:,1),class2(:,2), class2(:, 3),'b+');%,z,Y1,'-k', z,Y2,'-k');
+        plot3(class1(:,1),class1(:,2), class1(:, 3),'ro',class2(:,1),class2(:,2), class2(:, 3),'b+');%,z,Y1,'-k', z,Y2,'-k');
         %plot3(class1(:, 1), class1(:, 2), class1(:, 3), 'b+');
         hold on;
+        legend('Ёлементы 1 класса', 'Ёлементы 2 класса', 'Ёлементы 3 класса');
+        hold off;
         %plot3(class2(:, 1), class2(:, 2), class2(:, 3), 'ro');
     case 2
         plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+');%,z,Y1,'-k', z,Y2,'-k'
         %plot(class1(:, 1), class1(:, 2), 'b+');
         hold on;
+        legend('Ёлементы 1 класса', 'Ёлементы 2 класса');
+        hold off;
         %plot(class2(:, 1), class2(:, 2), 'ro');
 end
 

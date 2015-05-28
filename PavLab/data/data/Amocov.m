@@ -8,9 +8,14 @@ q = 1;
 for j=1:pr
     s = 0;
     for i=1:n(nkl)
-        s = s + rz(j, i, nkl);
+        s = s + rz(j,i,nkl);
     end
     mo(j, nkl) = s * p;
+%     1.9938    4.2720
+%     1.7363    4.0685
+%     0.5022    0.4758
+%     0.4805    0.5133
+%     0.5215    0.5517
 end
 for i=1:pr
     for j=i:pr

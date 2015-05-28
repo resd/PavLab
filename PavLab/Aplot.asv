@@ -1,4 +1,4 @@
-function [  ] = Aplot( class1, class2 , pr, z, Y1, Y2)
+function [  ] = Aplot( class1, class2 , pr)%, z, Y1, Y2
 %APLOT Summary of this function goes here
 %   Detailed explanation goes here
 % for i = 1:pr
@@ -13,9 +13,10 @@ switch pr
         hold on;
         %plot3(class2(:, 1), class2(:, 2), class2(:, 3), 'ro');
     case 2
-        plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+',z,Y1,'-k', z,Y2,'-k');
+        plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+');%,z,Y1,'-k', z,Y2,'-k'
         %plot(class1(:, 1), class1(:, 2), 'b+');
         hold on;
+        legend('Ёлементы 1 класса', 'Ёлементы 2 кд');
         %plot(class2(:, 1), class2(:, 2), 'ro');
 end
 

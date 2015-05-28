@@ -1,6 +1,6 @@
-function [ maxP, ac, outStr ] = Am( cl1, cl2, t1)
+function [ maxP, ac, outStr, acell] = Am( cl1, cl2, t1, v2)
 %AM Summary of this function goes here
-clc;
+% clc;
 % cl1 = [];
 % cl2 = [];
 % ws = load ('lab4.mat');
@@ -30,7 +30,21 @@ for j = 1:pr
     q = listOfIndex(j);
     a = cl1(:, q);
     b = cl2(:, q);
-    wq = Amain(a, b, 1);
+%     wq = Amain(a, b, 1);
+%     [ out, wq ] = getsingleout( v2, a, b, 1 );
+    switch v2
+        case 1
+            wq = rule(a, b, 1, false);%[res, a]
+            %                 res = Amain(cl1t, cl2t, col);
+        case 2
+            wq = rule(a, b, 1, true);%[res, a]
+            %                 res = MSAnew(cl1t, cl2t, col, 1);
+        case 3
+            wq = MSA(a, b, 1, 1);%[res, c0, c1max]
+            %                 res = MSA(cl1t, cl2t, col, 1);
+        case 4
+            wq = MSA(a, b, 1, 2);%[res, c0, c1max]
+    end
     acell(1, 1, j) = {wq(1)};
     acell(2, 1, j) = {wq(2)};
     acell(3, 1, j) = {wq(3)};
@@ -56,6 +70,8 @@ for ii = 2:pr
     [row, col] = size(listOfIndex);
     acell = [];
     acell{4,1,row} = [];
+    a = [];
+    b = [];
     countPerms(ii) = row;
     for i = 1 : row
         q = listOfIndex(i,:);
@@ -68,7 +84,7 @@ for ii = 2:pr
         %             len = length(q);
         %         end
         %fprintf('Данные по %d признакам:', len);
-        % Сформировать массивы иходных данных
+        % Сформировать массивы исходных данных
         % по номерам признаков
         for j = 1:length(q)
             a(:, j) = cl1(:, q(j));
@@ -78,7 +94,21 @@ for ii = 2:pr
         end
         s = s(1:length(s) - 1);
         %unique(s)
-        wq = Amain(a, b, length(q));
+%         wq = Amain(a, b, length(q));
+%         [ out, wq ] = getsingleout( v2, a, b, length(q) );
+        switch v2
+            case 1
+                wq = rule(a, b, length(q), false);%[res, a]
+                %                 res = Amain(cl1t, cl2t, col);
+            case 2
+                wq = rule(a, b, length(q), true);%[res, a]
+                %                 res = MSAnew(cl1t, cl2t, col, 1);
+            case 3
+                wq = MSA(a, b, length(q), 1);%[res, c0, c1max]
+                %                 res = MSA(cl1t, cl2t, col, 1);
+            case 4
+                wq = MSA(a, b, length(q), 2);%[res, c0, c1max]
+        end
         acell(1, 1, i) = {wq(1)};
         acell(2, 1, i) = {wq(2)};
         acell(3, 1, i) = {wq(3)};
@@ -101,17 +131,38 @@ end
 %whos acell
 %a{4,1,row} = [];
 outStr = sprintf('Полный перебор:\nПорядковый номер набора признаков / Вероятность правильного распознавания / Набор признаков\n');
+acellLen = 0;
+acell = [];
+acell{4,1,pr} = [];
 maxP = [];
 for ii = 1:pr
-    acell = [];
-    acell = ac{ii};
-    maxP(ii) = acell{1,1,1};
+    acellTemp = ac{ii};
+    maxP(ii) = acellTemp{1,1,1};
     for id = 1:countPerms(ii)
-        %fprintf('%d\t\t%.2f\t\t%.2f\t\t%.2f\t\t%s\n',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id))));
-%         outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%.2f\t%.2f\t%s',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id)))));
-        outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%s',id, [acell{1, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+        acellLen = acellLen + 1;
+        acell{1,1,acellLen} = acellTemp{1,1,id};
+        acell{2,1,acellLen} = acellTemp{2,1,id};
+        acell{3,1,acellLen} = acellTemp{3,1,id};
+        acell{4,1,acellLen} = acellTemp{4,1,id};
     end
 end
+% maxP = [];
+% for ii = 1:pr
+%     acell = [];
+%     acell = ac{ii};
+%     maxP(ii) = acell{1,1,1};
+%     for id = 1:countPerms(ii)
+%         %fprintf('%d\t\t%.2f\t\t%.2f\t\t%.2f\t\t%s\n',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id))));
+% %         outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%.2f\t%.2f\t%s',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+%         outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%s',id, [acell{1, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+%     end
+% end
+for id = 1:acellLen
+    %fprintf('%d\t\t%.2f\t\t%.2f\t\t%.2f\t\t%s\n',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id))));
+    %         outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%.2f\t%.2f\t%s',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+    outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%s',id, [acell{1, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+end
+
 outStr = strvcat(outStr, sprintf('\n'));
 % outStr = strvcat('Вероятности:', sprintf([repmat('%f\t%f\t%f\t%s\t', 1,
 % size(acell, 2)) '\n'], [acell}]));

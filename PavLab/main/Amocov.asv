@@ -1,7 +1,7 @@
 function [m, cv] = Amocov( nkl, rz, pr)
 %AMOCOV Summary of this function goes here
 %   Detailed explanation goes here
-global mo cov n;
+global mo cov n; 
 p = 1.0 / n(nkl);
 t = n(nkl) / (n(nkl) - 1.0);
 q = 1;

@@ -1,4 +1,4 @@
-function [ class ] = normalClass(n, N, M, D)
+function [ class ] = normalClass(pr, N, classM, classD)
 % n Ц к≥льк≥сть ознак у класах
 % N Ц к≥льк≥сть об'Їкт≥в у навчальн≥й виб≥рц≥
 % M Ц вектор мат. оч≥кувань ознак в≥дпов≥дно до вар≥анту завданн€
@@ -6,11 +6,12 @@ function [ class ] = normalClass(n, N, M, D)
  
 % формуванн€ матриц≥ N х n випадкових чисел
 % з нормальним законом розпод≥лу
-class = randn(N,n);
+class = randn(N,pr);
 
 % масштабуванн€ елемент≥в статистичноњ виб≥рки
-class(:,1) = M(1) + D(1)*(class(:,1));%-0.5
-class(:,2) = M(2) + D(2)*(class(:,2));%-0.5 
+for i = 1:pr
+    class(:,i) = classM(i) + classD(i)*(class(:,i));%-0.5
+end
 
 end
 

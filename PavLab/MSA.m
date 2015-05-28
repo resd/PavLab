@@ -1,22 +1,53 @@
 function [ res, c0, cmax ] = MSA( class1, class2, pr , vers )
 %MSAOLD Summary of this function goes here
 %   Detailed explanation goes here
-clc;
 
+% clc;
 % vers = 2; % 1 - МСА; 2 - Комб
 % ws = load ('classessss_3.mat');
 % class1 = ws.class1;
 % class2 = ws.class2;
+% pr = 2;
+
+% vers = 2;
+% ws = load ('classessss.mat');
+% class1 = ws.class1;
+% class2 = ws.class2;
+% pr = 2;
 
 % Объявление переменных
-
-Imax = 20; % Количество циклов обучение
-class1M = mean(class1);
-class2M = mean(class2);
-cnum = 6;
+ini = IniConfig();
+ini.ReadFile('config/config.ini');
+section = '[dataMSA]';
+keys = ini.GetKeys(section);
+values = ini.GetValues(section, keys);
+if(not(isempty(values)))
+    if(not(isempty(values{1})))% Количество циклов обучение
+        Imax = values{1};
+    else
+        Imax = 20;
+    end
+end
+% Imax = 10; % Количество циклов обучение
+M1 = mean(class1);
+M2 = mean(class2);
+cnum = (pr+1)*(pr+2)/2;
 c=[]; % Вектор коэффициентов
 if(vers == 1)
-    c(1:cnum) = 1;
+    if(not(isempty(values)))
+        if(not(isempty(values{2})))% Вектор коэффициентов
+            if length(values{2}) ~= cnum
+                fprintf(2,'\nПредупреждение!');
+                out = sprintf('\nКоличество коэффициентов  заданных в файле конфигурации не совпадает с нужным количеством коэффициентов. \nИспользованны коэффициентов по умолчанию[ряд единиц].\n\n');
+                disp(out)
+                c = ones(1,cnum);
+            else
+                c = values{2};
+            end
+        else
+            c = ones(1,cnum);
+        end
+    end
 else
     S1 = cov(class1);
     S2 = cov(class2);
@@ -24,48 +55,114 @@ else
     AS2 = inv(S2);
     DS1 = cond(S1);
     DS2 = cond(S2);
-    a = 0.5 * (AS2 - AS1);
-    b = AS1*class1M' - AS2*class2M';
-    c1 = -0.5*(class1M*AS1*class1M' - class2M*AS2*class2M') + 0.5*log(DS2/DS1);
-    c = [c1, b(2,1),b(1,1),a(2,2),2*a(1,2),a(1,1)];
+    at = 0.5 * (AS2 - AS1);
+    amCount = 1;
+    for i = 1:pr
+        for j = i:pr
+            if j == i
+                am(amCount) = at(i,j);
+            else
+                am(amCount) = 2 * at(i,j);
+            end
+            amCount = amCount + 1;
+        end
+    end
+    bt = AS1*M1' - AS2*M2';
+    bt = bt';
+    c1t = -0.5*(M1*AS1*M1' - M2*AS2*M2') + 0.5*log(DS2/DS1);
+    c = [am(1, :), bt(1,:),c1t];
+    c = c(length(c):-1:1);
 end
-c0 = c;
-n1 = length(class1);
-n2 = length(class2);
-N = n1+n2;
+c0  = c;
+n1  = length(class1);
+n2  = length(class2);
+N   = n1+n2;
 nn1 = 1;
 nn2 = 1;
-yn = 1;
-for i = 1:n1+n2
-    if mod(i, 2) == 1
-        class(i, :) = class1(nn1,:);
-        y(yn)=1;
-        nn1=nn1+1;
-        yn = yn+1;
+yn  = 1;
+if n2 < n1
+    for i = 1:n2*2
+        if mod(i, 2) == 1
+            class(i, :) = class1(nn1,:);
+            nn1         = nn1+1;
+            y(yn)       = 1;
+            yn          = yn+1;
+            
+        else
+            class(i, :) = class2(nn2,:);
+            nn2         = nn2+1;
+            y(yn)       = -1;
+            yn          = yn+1;
+        end
+    end
+    for i = n2+1:n1
+        class(yn,:) = class1(i,:);
+        y(yn)       = 1;
+        yn          = yn+1;
+    end
+else if n1 < n2
+        for i = 1:n1*2
+            if mod(i, 2) == 1
+                class(i, :) = class1(nn1,:);
+                nn1         = nn1+1;
+                y(yn)       = 1;
+                yn          = yn+1;
+            else
+                class(i, :) = class2(nn2,:);
+                nn2         = nn2+1;
+                y(yn)       = -1;
+                yn          = yn+1;
+            end
+        end
+        for i = n1+1:n2
+            class(yn,:) = class2(i,:);
+            y(yn)       = -1;
+            yn          = yn+1;
+        end
     else
-        class(i, :) = class2(nn2,:);
-        y(yn)=-1;
-        nn2=nn2+1;
-        yn = yn+1;
+        for i = 1:n1+n2
+            if mod(i, 2) == 1
+                class(i, :) = class1(nn1,:);
+                nn1         = nn1+1; 
+                y(yn)       = 1;
+                yn          = yn+1;
+            else
+                class(i, :) = class2(nn2,:);
+                nn2         = nn2+1;
+                y(yn)       = -1;
+                yn          = yn+1;
+            end
+        end
     end
 end
-Pmax = 0;
-err1max=0;
-err2max=0;
-iimax=0;
-jjmax=0;
-cmax=[];
+
+Pmax    = 0;
+err1max = 0;
+err2max = 0;
+iimax   = 0;
+jjmax   = 0;
+cmax    = [];
 
 % Предварительные вычисление
 
 x = [];
 for (j = 1:N)
-    x(j, 6) = class(j,1)*class(j,1);
-    x(j, 5) = class(j,1)*class(j,2);
-    x(j, 4) = class(j,2)*class(j,2);
-    x(j, 3) = class(j,1);
-    x(j, 2) = class(j,2);
-    x(j, 1) = 1;
+    xCount = 1;
+    for i = 1:pr
+        for k = i:pr
+             x(j, xCount) = class(j,k) * class(j,i);
+             xCount = xCount + 1;
+        end
+    end
+    for i = 1:pr
+        x(j, xCount) = class(j, i);
+        xCount = xCount + 1;
+    end
+    x(j, xCount) = 1;
+end
+[row, col] = size(x);
+x = x(:, col:-1:1);
+for (j = 1:N)
     q=0;
     r(1:cnum, 1:cnum) = 0;
     for(k=1:cnum)
@@ -79,7 +176,40 @@ for (j = 1:N)
         G(j, k) = s/q;
     end
 end
-
+x1 = [];
+for (j = 1:n1)
+    xCount = 1;
+    for i = 1:pr
+        for k = i:pr
+             x1(j, xCount) = class1(j,k) * class1(j,i);
+             xCount = xCount + 1;
+        end
+    end
+    for i = 1:pr
+        x1(j, xCount) = class1(j, i);
+        xCount = xCount + 1;
+    end
+    x1(j, xCount) = 1;
+end
+[row, col] = size(x1);
+x1 = x1(:, col:-1:1);
+x2 = [];
+for (j = 1:n2)
+    xCount = 1;
+    for i = 1:pr
+        for k = i:pr
+             x2(j, xCount) = class2(j,k) * class2(j,i);
+             xCount = xCount + 1;
+        end
+    end
+    for i = 1:pr
+        x2(j, xCount) = class2(j, i);
+        xCount = xCount + 1;
+    end
+    x2(j, xCount) = 1;
+end
+[row, col] = size(x2);
+x2 = x2(:, col:-1:1);
 % Итерационная процедура метода стохастической аппроксимации
 
 for (ii = 1:Imax)
@@ -100,11 +230,15 @@ for (ii = 1:Imax)
         err2 = 0;
         P = 0;
         for i=1:n1
-            D1 = c(6)*class1(i,1)^2 + c(5)*class1(i,1)*class1(i,2) + c(4)*class1(i,2)^2 + c(3)*class1(i,1) + c(2)*class1(i,2) + c(1);
+%             D1 = c(6)*class1(i,1)^2 + c(5)*class1(i,1)*class1(i,2) + c(4)*class1(i,2)^2 + c(3)*class1(i,1) + c(2)*class1(i,2) + c(1);
+            D1 = c*x1(i,:)';
             if(D1<0)
                 err1=err1+1;
             end
-            D2 = c(6)*class2(i,1)^2 + c(5)*class2(i,1)*class2(i,2) + c(4)*class2(i,2)^2 + c(3)*class2(i,1) + c(2)*class2(i,2) + c(1);
+        end
+        for i = 1:n2
+%             D2 = c(6)*class2(i,1)^2 + c(5)*class2(i,1)*class2(i,2) + c(4)*class2(i,2)^2 + c(3)*class2(i,1) + c(2)*class2(i,2) + c(1);
+            D2 = c*x2(i,:)';
             if(D2>0)
                 err2=err2+1;
             end
@@ -115,61 +249,65 @@ for (ii = 1:Imax)
             err1max=err1;
             err2max=err2;
             iimax=ii;
-            jjmax=j;
+%             jjmax=j;
             cmax=c;
         end
     end
 end
 
-% Отображение полинома в пространстве признаков
-if pr == 2 
-    tmin = min(min(class1(:)), min(class2(:)));
-    tmax = max(max(class1(:)), max(class2(:)));
-    c = cmax;
-    p = 1000;
-    i = 1;
-    for t=tmin:((tmax-tmin)/p):tmax,
-        z(i) = t;
-        X = z(i);
-        Y1(i) = (-(c(5) * X + c(2))+((c(5) * X + c(2)).^2 - 4 * c(4) * (c(6) * X.^2 + c(3) * X + c(1))).^0.5)/(2 * c(4));
-        Y2(i) = (-(c(5) * X + c(2))-((c(5) * X + c(2)).^2 - 4 * c(4) * (c(6) * X.^2 + c(3) * X + c(1))).^0.5)/(2 * c(4));
-        i=i+1;
-    end
-    figure(21);
-    arrayInd = [];
-    arrayCount = 1;
-    flagImag = false;
-    zLen = length(z);
-    for i = 1:zLen
-        if isreal(Y1(i)) == 0
-            arrayInd(arrayCount) = i;
-            arrayCount = arrayCount + 1;
-            flagImag = true;
-        end
-    end
-    for i = length(arrayInd):-1:1
-        z(arrayInd(i)) = [];
-        Y1(arrayInd(i)) = [];
-        Y2(arrayInd(i)) = [];
-    end
-    
-    plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+');
-    hold on;
-    % Вот тут
-    plot(z,real(Y1),'-k');
-    plot(z,real(Y2),'-k');
-    if flagImag
-        zLen = length(z);
-%         Соеденить конци  Y1 и Y2
-        plot([z(1), z(1)],[Y1(1), Y2(1)],'-k');
-        plot([z(zLen), z(zLen)],[Y1(zLen), Y2(zLen)],'-k');
-    end
-end
+% % Отображение полинома в пространстве признаков
+% if pr == 2 
+%     tmin = min(min(class1(:)), min(class2(:)));
+%     tmax = max(max(class1(:)), max(class2(:)));
+%     c = cmax;
+%     p = 1000;
+%     i = 1;
+%     for t=tmin:((tmax-tmin)/p):tmax,
+%         z(i)  = t;
+%         X     = z(i);
+%         Y1(i) = (-(c(5) * X + c(2))+((c(5) * X + c(2)).^2 - 4 * c(4) * (c(6) * X.^2 + c(3) * X + c(1))).^0.5)/(2 * c(4));
+%         Y2(i) = (-(c(5) * X + c(2))-((c(5) * X + c(2)).^2 - 4 * c(4) * (c(6) * X.^2 + c(3) * X + c(1))).^0.5)/(2 * c(4));
+%         i     = i+1;
+%     end
+%     figure(21);
+%     arrayInd   = [];
+%     arrayCount = 1;
+%     flagImag   = false;
+%     zLen       = length(z);
+%     for i = 1:zLen
+%         if isreal(Y1(i)) == 0
+%             arrayInd(arrayCount) = i;
+%             arrayCount           = arrayCount + 1;
+%             flagImag             = true;
+%         end
+%     end
+%     for i = length(arrayInd):-1:1
+%         z(arrayInd(i))  = [];
+%         Y1(arrayInd(i)) = [];
+%         Y2(arrayInd(i)) = [];
+%     end
+%     
+%     plot(class1(:,1),class1(:,2),'ro',class2(:,1),class2(:,2),'b+');
+%     hold on;
+%     legend('Элементы 1 класса', 'Элементы 2 класса');
+%     % Вот тут
+%     plot(z,real(Y1),'-k');
+%     plot(z,real(Y2),'-k');
+%     if flagImag
+%         zLen = length(z);
+% %         Соеденить конци  Y1 и Y2
+%         plot([z(1), z(1)],[Y1(1), Y2(1)],'-k');
+%         plot([z(zLen), z(zLen)],[Y1(zLen), Y2(zLen)],'-k');
+%     end
+%     hold off;
+% end
 
 res(1) = Pmax*100;
 res(2) = err1max;
 res(3) = err2max;
-res(4) = iimax;
-res(5) = Imax;
+res(4) = err1max/n1 * 100;
+res(5) = err2max/n2 * 100;
+res(6) = iimax;
+res(7) = Imax;
 end
 

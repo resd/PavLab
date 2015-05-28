@@ -47,22 +47,17 @@ end
 function Calculate_Callback(hObject, eventdata, handles)
 
 ini = IniConfig();
-ini.ReadFile('config.ini');
+ini.ReadFile('config/config.ini');
 section = '[dataMSA]';
 keys = ini.GetKeys(section);
 Imax = str2num(get(handles.Imax, 'String'));
 ini.SetValues(section, keys{1}, Imax);
 c = [];
 if(get(handles.checkbox1, 'Value') == 0)
-    c(1) = str2num(get(handles.c1, 'String'));
-    c(2) = str2num(get(handles.c2, 'String'));
-    c(3) = str2num(get(handles.c3, 'String'));
-    c(4) = str2num(get(handles.c4, 'String'));
-    c(5) = str2num(get(handles.c5, 'String'));
-    c(6) = str2num(get(handles.c6, 'String'));
+    c = str2num(get(handles.edit15, 'String'));
     ini.SetValues(section, keys{2}, c);
 end
-ini.WriteFile('config.ini');
+ini.WriteFile('config/config.ini');
 close(untitled);
 % todo Запилить закрытие окна здесь.
 
@@ -71,9 +66,9 @@ function initialize_gui(fig_handle, handles, isreset, v2)
 % if isfield(handles, 'metricdata')
 %     return;
 % end
-if v2 == 2
+if v2 == 3
     set(handles.checkbox1, 'Value', 0);
-else if v2 == 3
+else if v2 == 4
         set(handles.checkbox1, 'Value', 1);
     end
 end
@@ -88,29 +83,17 @@ if(not(isempty(values)))
     end
     if(not(isempty(values{2})))
         c = values{2};
-        set(handles.c1, 'String', c(1));
-        set(handles.c2, 'String', c(2));
-        set(handles.c3, 'String', c(3));
-        set(handles.c4, 'String', c(4));
-        set(handles.c5, 'String', c(5));
-        set(handles.c6, 'String', c(6));
+        set(handles.edit15, 'String', c);
+    else
+        c = ones(1,(getpr()+1)*(getpr()+2)/2);
+        set(handles.edit15, 'String', c);
     end
 end
 if(not(isempty(v2)))
-    if(v2 == 3)
-        set(handles.c1, 'Enable', 'off');
-        set(handles.c2, 'Enable', 'off');
-        set(handles.c3, 'Enable', 'off');
-        set(handles.c4, 'Enable', 'off');
-        set(handles.c5, 'Enable', 'off');
-        set(handles.c6, 'Enable', 'off');
+    if(v2 == 4)
+        set(handles.edit15, 'Enable', 'off');
     else
-        set(handles.c1, 'Enable', 'on');
-        set(handles.c2, 'Enable', 'on');
-        set(handles.c3, 'Enable', 'on');
-        set(handles.c4, 'Enable', 'on');
-        set(handles.c5, 'Enable', 'on');
-        set(handles.c6, 'Enable', 'on');
+        set(handles.edit15, 'Enable', 'on');
     end
 end
 
@@ -284,4 +267,27 @@ else
     set(handles.c4, 'Enable', 'on');
     set(handles.c5, 'Enable', 'on');
     set(handles.c6, 'Enable', 'on');
+end
+
+
+
+function edit15_Callback(hObject, eventdata, handles)
+% hObject    handle to edit15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit15 as text
+%        str2double(get(hObject,'String')) returns contents of edit15 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit15_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit15 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end

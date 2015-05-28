@@ -1,0 +1,225 @@
+function [ out ] = getmultiout( v1, t1, cl1tt, cl2tt, v2, cb )
+%GETMULTIOUT Summary of this function goes here
+%   Detailed explanation goes here
+% pr = getpr();
+clc; % todo del
+t1Len = length(t1);
+len = getcllen();
+out = '';
+
+switch v1
+    case 1% PP
+        % Выполняем перебор между 1 и всеми остальными классами
+        [maxP, ac, outf, res] = Am(cl1tt, cl2tt, t1, v2);% todo col
+    case 2% CP
+        [row, col] = size(cl1tt);
+        [maxP, outf, res] = SokraPer(cl1tt, cl2tt, col, v2, t1);% todo col
+    case 3% MK
+        [row, col] = size(cl1tt);
+        [maxP, outf, res] = MK(cl1tt, cl2tt, col, v2, t1);% todo col
+end
+if len == 2 % Если клоичество класов = 2, то конец
+    out = outf;
+else % иначе многокласовость
+    addres(res); % Добавляем результат сравнения 1 класса с остальными
+    stemp = ['Сравнение классов ', num2str(len-1), ' c ', num2str(len)]; % num2str(len-1) ~= 2 ?
+    out = strvcat(out, stemp, outf);
+    %             out = [out, stemp, outf];
+    for i = len-1: -1 :2
+        cl1 = getcl(i);
+        cl2 = getcli(i+1, len);
+        if cb == 1
+            for i = 1:length(t1)
+                cl1tt(:, i) = cl1(:, t1(i));
+                cl2tt(:, i) = cl2(:, t1(i));
+            end
+        else
+            cl1tt = getcl(t2);
+            cl2tt = getcli(t2 + 1, getcllen());
+        end
+%         [maxP, ac, outf, res] = Am(cl1, cl2, t1, v2);
+        switch v1
+            case 1% PP
+                [maxP, ac, outf, res] = Am(cl1, cl2, t1, v2);% todo col
+            case 2% CP
+                [row, col] = size(cl1);
+                [maxP, outf, res] = SokraPer(cl1, cl2, col, v2, t1);% todo col
+            case 3% MK
+                [row, col] = size(cl1);
+                [maxP, outf, res] = MK(cl1, cl2, col, v2, t1);% todo col
+        end
+        addres(res);
+        %                 outf = strtrim(outf);
+        s = strcat(' ', num2str(i));
+        for j = i:len-1
+            s = strcat(s, ',', num2str(j+1));
+        end
+        %                 stemp = strvcat(' ', strcat('Сравнение классов ', num2str(i-1), ' c ', ' ', s));
+        stemp = [sprintf('\n'), 'Сравнение классов ', num2str(i-1), ' c ', s];
+        out = strvcat(out, stemp, outf);
+        %                         cl1 = getcl(2);
+        %                         cl2 = getcl(3);
+        %                         %cl2 = getcli(2, 3);
+        %                     [res, outf] = Am(cl1, cl2, pr);
+        %                     out = strtrim(outf);
+    end
+    format shortG;
+    res1 = getres(1);
+    len = length(res1(1, : , :));
+    clLen = getcllen() - 1;
+    lenresult = getreslen();
+    outStr = '';
+    w{4,1,len} = [];
+    k1 = 0; k2 = 0; k3 = 0;
+    %             pr = getpr();% todo check
+    pr = t1Len;
+    for j = 1:pr
+        for k = 1:lenresult
+            res = getres(k);
+            k1 = k1 + [res{1, 1, j}];
+            k2 = k2 + [res{2, 1, j}];
+            k3 = k3 + [res{3, 1, j}];
+        end
+        k4 = length([res{4,1,j}]);
+        w(1,1,j) = {k1/clLen};
+        w(2,1,j) = {k2/clLen};
+        w(3,1,j) = {k3/clLen};
+        w(4,1,j) = {k4};
+        k1 = 0; k2 = 0; k3 = 0;
+    end
+    if v1 ~= 3;
+        w = AsortPP(w, 1, pr);
+    end
+    k4 = 2;
+    idStart = pr+1;
+    for j = pr+1:len
+        for k = 1:lenresult
+            res = getres(k);
+            k1 = k1 + [res{1, 1, j}];
+            k2 = k2 + [res{2, 1, j}];
+            k3 = k3 + [res{3, 1, j}];
+        end
+        if v1 ~= 3;
+            if (k4 < length([res{4,1,j}]))
+                w = AsortPP(w, idStart, j - 1);
+                idStart = j;
+            end
+        end
+        k4 = length([res{4,1,j}]);
+        w(1,1,j) = {k1/clLen};
+        w(2,1,j) = {k2/clLen};
+        w(3,1,j) = {k3/clLen};
+        w(4,1,j) = {k4};
+        %outStr = strvcat(outStr, sprintf('%d:\t%4.2f\t%4.2f\t%4.2f\t%d',j, k1/lenresult, k2/lenresult, k3/lenresult, k4));
+        k1 = 0; k2 = 0; k3 = 0;
+    end
+    
+    for id = 1:len
+        %                 outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%.2f\t%.2f\t%d',id, [w{1, 1, id}], [w{2, 1, id}], [w{3, 1, id}], [w{4, 1, id}]));
+        outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%d',id, [w{1, 1, id}], [w{4, 1, id}]));
+    end
+    
+    %outStr = strvcat(outStr,
+    %sprintf('%d:\t%.2f\t%.2f\t%.2f\t%s',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+    out = strvcat(out, 'Результирующая выборка ', outStr);
+end
+
+function [cl] = getcli(istart, iend)
+cl = getcl(istart);
+lens = length(cl);
+for i = istart+1:iend
+    clt = getcl(i);
+    for j = 1:length(clt)
+        for p = 1:getpr()
+            cl(lens+j, p) = clt(j, p);
+        end
+    end
+end
+
+% case 1% PP
+%         out = '';
+% %         cl1 = getcl(len - 1);
+% %         cl2 = getcl(len);
+%         %                 cl1(1, :)
+%         %                 cl2(1, :)
+%         % Выполняем перебор между 1 и всеми остальными классами
+%         [maxP, ac, outf, res] = Am(cl1tt, cl2tt, t1, v2);% todo col
+%         if(len == 2) % Если клоичество класов = 2, то конец
+%             out = strtrim(outf);
+%         else % иначе многокласовость
+%             addres(res); % Добавляем результат сравнения 1 класса с остальными
+%             stemp = ['Сравнение классов ', num2str(len-1), ' c ', num2str(len)]; % num2str(len-1) ~= 2 ?
+%             out = strvcat(out, stemp, outf);
+% %             out = [out, stemp, outf];
+%             for i = len-1: -1 :2
+%                 cl1 = getcl(i-1);
+%                 cl2 = getcli(i, len);
+%                 [maxP, ac, outf, res] = Am(cl1, cl2, pr, v2);
+%                 addres(res);
+% %                 outf = strtrim(outf);
+%                 s = strcat(' ', num2str(i));
+%                 for j = i:len-1
+%                     s = strcat(s, ',', num2str(j+1));
+%                 end
+% %                 stemp = strvcat(' ', strcat('Сравнение классов ', num2str(i-1), ' c ', ' ', s));
+%                 stemp = [sprintf('\n'), 'Сравнение классов ', num2str(i-1), ' c ', s];
+%                 out = strvcat(out, stemp, outf);
+%                 %                         cl1 = getcl(2);
+%                 %                         cl2 = getcl(3);
+%                 %                         %cl2 = getcli(2, 3);
+%                 %                     [res, outf] = Am(cl1, cl2, pr);
+%                 %                     out = strtrim(outf);
+%             end
+%             format shortG;
+%             res1 = getres(1);
+%             len = length(res1(1, : , :));
+%             lenresult = getreslen();
+%             outStr = '';
+%             w{4,1,len} = [];
+%             k1 = 0; k2 = 0; k3 = 0;
+% %             pr = getpr(); todo check
+%             for j = 1:pr
+%                 for k = 1:lenresult
+%                     res = getres(k);
+%                     k1 = k1 + [res{1, 1, j}];
+%                     k2 = k2 + [res{2, 1, j}];
+%                     k3 = k3 + [res{3, 1, j}];
+%                 end
+%                 k4 = length([res{4,1,j}]);
+%                 w(1,1,j) = {k1/2};
+%                 w(2,1,j) = {k2/2};
+%                 w(3,1,j) = {k3/2};
+%                 w(4,1,j) = {k4};
+%                 k1 = 0; k2 = 0; k3 = 0;
+%             end
+%             w = AsortPP(w, 1, pr);
+%             k4 = 2;
+%             idStart = pr+1;
+%             for j = pr+1:len
+%                 for k = 1:lenresult
+%                     res = getres(k);
+%                     k1 = k1 + [res{1, 1, j}];
+%                     k2 = k2 + [res{2, 1, j}];
+%                     k3 = k3 + [res{3, 1, j}];
+%                 end
+%                 if (k4 < length([res{4,1,j}]))
+%                     w = AsortPP(w, idStart, j - 1);
+%                     idStart = j;
+%                 end
+%                 k4 = length([res{4,1,j}]);
+%                 w(1,1,j) = {k1/2};
+%                 w(2,1,j) = {k2/2};
+%                 w(3,1,j) = {k3/2};
+%                 w(4,1,j) = {k4};
+%                 %outStr = strvcat(outStr, sprintf('%d:\t%4.2f\t%4.2f\t%4.2f\t%d',j, k1/lenresult, k2/lenresult, k3/lenresult, k4));
+%                 k1 = 0; k2 = 0; k3 = 0;
+%             end
+%             
+%             for id = 1:len
+%                 outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%.2f\t%.2f\t%d',id, [w{1, 1, id}], [w{2, 1, id}], [w{3, 1, id}], [w{4, 1, id}]));
+%             end
+%             
+%             %outStr = strvcat(outStr,
+%             %sprintf('%d:\t%.2f\t%.2f\t%.2f\t%s',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+%             out = strvcat(out, 'Результирующая выборка ', outStr);
+%         end

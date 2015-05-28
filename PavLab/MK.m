@@ -1,9 +1,8 @@
-function [ maxP, out ] = MK( cl1, cl2, pr, v2 , t1)
+function [ maxP, outStr, acell ] = MK( cl1, cl2, pr, v2 , t1)
 %MK Summary of this function goes here
 %   Detailed explanation goes here
-clc;
+% clc;
 % todo Вынести за пределы этого
-% v2 = 1;
 % pr = 5;
 for i = 1:pr
     w(i) = i;
@@ -12,9 +11,16 @@ end
 % cl1 = ws.class1;
 % cl2 = ws.class2;
 % /todo
+% pr = length(t1);
 k = 2; % количество выбираемых за 1 шаг перестановок из pr
 out = sprintf('Метод Монте-Карло:\nМаксимальная вероятность правильного распознавания для каждого набора признаков / Набор признаков\n');
 maxP = [];
+% new
+countPerms = [];
+% acell{4,1,pr} = [];
+% ac{pr} = [];
+acellLen = 1;
+% /new/
 addpath config;
 
 for q = 1:pr-1
@@ -31,12 +37,12 @@ for q = 1:pr-1
     end
     for ss = 1 : s
         % При k = 2
-        if fix(max(len)) == 1.0 break; end;
+        if fix(max(len)) == 1.0  break;  end;
         while true
             qw = rand(1, k);
             b(1) = find(qw(1), prl, diap);
             b(2) = find(qw(2), prl, diap);
-            if (b(1) ~= b(2)) break; end;
+            if (b(1) ~= b(2))  break;  end;
         end
         %b
         cl11 = [];
@@ -49,8 +55,26 @@ for q = 1:pr-1
             cl21(:, jj) = cl1(:, prp(b(2), jj));
             cl22(:, jj) = cl2(:, prp(b(2), jj));
         end
-        res1 = Amain(cl11, cl12, q);
-        res2 = Amain(cl21, cl22, q);
+        switch v2
+            case 1
+%                 res = rule(cl1t, cl2t, pr, false);%[res, a]
+                res1 = rule(cl11, cl12, q, false);
+                res2 = rule(cl21, cl22, q, false);
+            case 2
+%                 res = rule(cl1t, cl2t, pr, true);%[res, a]
+                res1 = rule(cl11, cl12, q, true);
+                res2 = rule(cl21, cl22, q, true);
+            case 3
+                res1 = MSA(cl11, cl12, q, 1);
+                res2 = MSA(cl21, cl22, q, 1);
+%                 res = MSA(cl1t, cl2t, pr, 1);%[res, c0, c1max]\
+            case 4
+                res1 = MSA(cl11, cl12, q, 2);
+                res2 = MSA(cl21, cl22, q, 2);
+%                 res = MSA(cl1t, cl2t, pr, 2);%[res, c0, c1max]
+        end
+%         res1 = Amain(cl11, cl12, q);
+%         res2 = Amain(cl21, cl22, q);
         if res1(1) >= res2(1)
             k1 = b(1);
             k2 = b(2);
@@ -112,7 +136,20 @@ for q = 1:pr-1
         cl11(:, i) = cl1(:, prp(imax, i));
         cl12(:, i) = cl2(:, prp(imax, i));
     end
-    res = Amain(cl11, cl12, col);
+    switch v2
+    case 1
+        res = rule(cl11, cl12, col, false);%[res, a]
+        %                 res = Amain(cl1t, cl2t, col);
+    case 2
+        res = rule(cl11, cl12, col, true);%[res, a]
+        %                 res = MSAnew(cl1t, cl2t, col, 1);
+    case 3
+        res = MSA(cl11, cl12, col, 1);%[res, c0, c1max]
+        %                 res = MSA(cl1t, cl2t, col, 1);
+    case 4
+        res = MSA(cl11, cl12, col, 2);%[res, c0, c1max]
+    end
+%     res = Amain(cl11, cl12, col);
     %out1 = ['i = ' num2str(q)];
     q = prp(imax,:);
     for e = 1:length(q)
@@ -124,6 +161,14 @@ for q = 1:pr-1
     str = sprintf('%.2f\t%s', res(1), num2str(qq));
     out = strvcat(out, str);
     maxP(i) = res(1);
+    
+    % new
+    acell(1, 1, acellLen) = {res(1)};
+    acell(2, 1, acellLen) = {res(2)};
+    acell(3, 1, acellLen) = {res(3)};
+    acell(4, 1, acellLen) = {qq};
+    acellLen = acellLen + 1;
+    % /new/
 end
 
 MKconfig(t, 1, pr);
@@ -132,9 +177,33 @@ q = w;
 for e = 1:length(q)
     qq(e) = t1(q(e));
 end
-res = Amain(cl1, cl2, pr);
-str = sprintf('%.2f\t%s', res(1), num2str(qq));
-out = strvcat(out, str);
+% res = Amain(cl1, cl2, pr);
+switch v2
+    case 1
+        res = rule(cl1, cl2, pr, false);%[res, a]
+        %                 res = Amain(cl1t, cl2t, col);
+    case 2
+        res = rule(cl1, cl2, pr, true);%[res, a]
+        %                 res = MSAnew(cl1t, cl2t, col, 1);
+    case 3
+        res = MSA(cl1, cl2, pr, 1);%[res, c0, c1max]
+        %                 res = MSA(cl1t, cl2t, col, 1);
+    case 4
+        res = MSA(cl1, cl2, pr, 2);%[res, c0, c1max]
+end
+acell(1, 1, acellLen) = {res(1)};
+acell(2, 1, acellLen) = {res(2)};
+acell(3, 1, acellLen) = {res(3)};
+acell(4, 1, acellLen) = {qq};
+% str = sprintf('%.2f\t%s', res(1), num2str(qq));
+% out = strvcat(out, str);
+outStr = sprintf('Метод Монте-Карло:\nМаксимальная вероятность правильного распознавания для каждого набора признаков / Набор признаков\n');
+for id = 1:acellLen
+    %fprintf('%d\t\t%.2f\t\t%.2f\t\t%.2f\t\t%s\n',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id))));
+    %         outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%.2f\t%.2f\t%s',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+    outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%s',id, [acell{1, 1, id}], num2str(cell2mat(acell(4,1,id)))));
+end
+outStr = strvcat(outStr, sprintf('\n'));
 maxP(pr) = res(1);
 % str = [num2str(qq)];
 % out2 = [num2str(res(1)) '  -  ' str];

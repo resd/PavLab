@@ -125,7 +125,7 @@ function Save_Callback(hObject, eventdata, handles)
 function Open_Callback_Add(path, handles)
 clearclpr();
 clearothers();
-clc;
+% clc;
 %fid = fopen('D:\H\MATLAB R2009a Portable\Work\msredc.in');
 pathIn = path(length(path)-2:length(path));
 fid = fopen(path);
@@ -165,18 +165,37 @@ switch pathIn
         %cl = evalin( 'base', 'class1' );
         %addcl(evalin( 'base', 'class1' ));
         %addcl(evalin( 'base', 'class2' ));
-        ws = load (path);
-        cl = ws.class1;
-        setpr(length(cl(1,:)));
-        addcl(cl);
-        addcl(ws.class2);
-        str = strcat('Количество признаков: ', num2str(length(cl(1,:))));
+        ws = load(path);
+        cellIn = struct2cell(ws);
+        if iscell(cellIn{1})
+            cellIn = cellIn{1};
+            setclasses(cellIn);
+            cl1 = getcl(1);
+            prIn = length(cl1(1,:));
+        else
+            cl1 = cellIn{1};
+            prIn = length(cl1(1,:));
+            addcl(cl1);
+            addcl(cellIn{2});
+        end
+        setpr(prIn);
+        str = [path, sprintf('\n'), 'Количество признаков: ', num2str(prIn), sprintf('\n')];
+%         str = [str, 'Количество классов  :  ', num2str(getcllen()), sprintf('\n')];
+%         str = [path, str];
         for i = 1:getcllen()
-            str = strvcat(str, strcat(num2str(i), ' класс = ', ' ', num2str(length(getcl(i))), ' элементов'));
+            str = [str, num2str(i), ' класс  :  ', num2str(length(getcl(i))), ' элементов', sprintf('\n')];
         end
         set(handles.edit6, 'String', str);
     otherwise
         %todo запилить ввод в .txt тут, с проверками на считываемость вообще.
+end
+if getcllen() == 2
+    str = get(handles.poAutoEnum, 'String');
+else 
+    str{1} = 'ПП';
+    str{2} = 'СП';
+    str{3} = 'М-К';
+    str{4} = ''
 end
 fclose(fid);
 %s = strcat('Кол-во эл-тов 1-го класса = ', ' ', num2str(n(1)), ', кол-во эл-тов 2-го класса = ', ' ', num2str(n(2)), ', кол-во признаков = ', ' ', num2str(pr));
@@ -303,7 +322,7 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 clearothers();
 clearres();
-clc;
+% clc;
 len = getcllen();
 pr = getpr();
 
@@ -317,7 +336,7 @@ handles = guidata(hObject);  % Update!
 switch get(get(handles.uipanel4,'SelectedObject'),'Tag')
     case 'rbManualEnum'
         %v1 = get(handles.edit7, 'String');
-        v1 = 'Manual';
+        v1 = 0;
     case 'rbAutoEnum'
         v1 = get(handles.poAutoEnum,'Value');
     otherwise
@@ -361,137 +380,8 @@ else
     cl1tt = getcl(t2);
     cl2tt = getcli(t2 + 1, getcllen());
 end
-%todo ====================================
-switch v1
-    case 1% PP
-        out = '';
-%         cl1 = getcl(len - 1);
-%         cl2 = getcl(len);
-        %                 cl1(1, :)
-        %                 cl2(1, :)
-        switch v2
-            case 1%msr
-                [res, ac, outf] = Am(cl1tt, cl2tt, t1);% todo col
-            case 2%msa
-            case 3%ns
-        end
-        if(len == 2)
-            out = strtrim(outf);
-        else
-            addres(res);
-            outf = strtrim(outf);
-            stemp = strcat('Сравнение классов ', num2str(len-1), ' c ');
-            stemp = strcat(stemp, ' ', num2str(len));
-            out = strvcat(out, stemp, outf);
-            for i = len-1: -1 :2
-                cl1 = getcl(i-1);
-                cl2 = getcli(i, len);
-                switch v2
-                    case 1%msr
-                        [res, outf] = Am(cl1, cl2, pr);
-                    case 2%msa
-                    case 3%ns
-                end
-                addres(res);
-                outf = strtrim(outf);
-                s = strcat(' ', num2str(i));
-                for j = i:len-1
-                    s = strcat(s, ',', num2str(j+1));
-                end
-                stemp = strvcat(' ', strcat('Сравнение классов ', num2str(i-1), ' c ', ' ', s));
-                out = strvcat(out, stemp, outf);
-                %                         cl1 = getcl(2);
-                %                         cl2 = getcl(3);
-                %                         %cl2 = getcli(2, 3);
-                %                     [res, outf] = Am(cl1, cl2, pr);
-                %                     out = strtrim(outf);
-            end
-            format shortG;
-            res1 = getres(1);
-            len = length(res1(1, : , :));
-            lenresult = getreslen();
-            outStr = '';
-            w{4,1,len} = [];
-            k1 = 0; k2 = 0; k3 = 0;
-            pr = getpr();
-            for j = 1:pr
-                for k = 1:lenresult
-                    res = getres(k);
-                    k1 = k1 + [res{1, 1, j}];
-                    k2 = k2 + [res{2, 1, j}];
-                    k3 = k3 + [res{3, 1, j}];
-                end
-                k4 = length([res{4,1,j}]);
-                w(1,1,j) = {k1/2};
-                w(2,1,j) = {k2/2};
-                w(3,1,j) = {k3/2};
-                w(4,1,j) = {k4};
-                k1 = 0; k2 = 0; k3 = 0;
-            end
-            w = AsortPP(w, 1, pr);
-            k4 = 2;
-            idStart = pr+1;
-            for j = pr+1:len
-                for k = 1:lenresult
-                    res = getres(k);
-                    k1 = k1 + [res{1, 1, j}];
-                    k2 = k2 + [res{2, 1, j}];
-                    k3 = k3 + [res{3, 1, j}];
-                end
-                if (k4 < length([res{4,1,j}]))
-                    w = AsortPP(w, idStart, j - 1);
-                    idStart = j;
-                end
-                k4 = length([res{4,1,j}]);
-                w(1,1,j) = {k1/2};
-                w(2,1,j) = {k2/2};
-                w(3,1,j) = {k3/2};
-                w(4,1,j) = {k4};
-                %outStr = strvcat(outStr, sprintf('%d:\t%4.2f\t%4.2f\t%4.2f\t%d',j, k1/lenresult, k2/lenresult, k3/lenresult, k4));
-                k1 = 0; k2 = 0; k3 = 0;
-            end
-            
-            for id = 1:len
-                outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%.2f\t%.2f\t%d',id, [w{1, 1, id}], [w{2, 1, id}], [w{3, 1, id}], [w{4, 1, id}]));
-            end
-            
-            %outStr = strvcat(outStr,
-            %sprintf('%d:\t%.2f\t%.2f\t%.2f\t%s',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id)))));
-            out = strvcat(out, 'Результирующая выборка ', outStr);
-        end
-    case 2% CP
-        out = '';
-        cl1 = getcl(len - 1);
-        cl2 = getcl(len);
-        %                 cl1(1, :)
-        %                 cl2(1, :)
-        [row, col] = size(cl1tt);
-        [maxP, outf] = SokraPer(cl1tt, cl2tt, col, v2, t1);% todo col
-%         switch v2
-%             case 1%msr
-%                 [outf] = SokraPer(cl1, cl2, pr, v2);
-%             case 2%msa
-%                 [outf] = SokraPer(cl1, cl2, pr, 2);
-%             case 3%ns
-%         end
-        if(len == 2)
-            out = strtrim(outf);
-        end
-    case 3% MK
-        out = '';
-        %                 cl1(1, :)
-        %                 cl2(1, :)
-        [row, col] = size(cl1tt);
-        switch v2
-            case 1%msr
-                 [maxP, outf] = MK(cl1tt, cl2tt, col, v2, t1);% todo col
-            case 2%msa
-            case 3%ns
-        end
-        if(len == 2)
-            out = strtrim(outf);
-        end
-    case 4
+if v1 == 4 && len == 2 % [PP + SP + MK]
+    clc;
         out = '';
         switch v2
             case 1% MSR
@@ -501,7 +391,7 @@ switch v1
         
         % only MSR
         [row, col] = size(cl1tt);
-        [maxP1, ac, outf1] = Am(cl1tt, cl2tt, t1);% todo col
+        [maxP1, ac, outf1] = Am(cl1tt, cl2tt, t1, v2);% todo col
         [maxP2, outf2] = SokraPer(cl1tt, cl2tt, col, v2, t1);% todo col
         [maxP3, outf3] = MK(cl1tt, cl2tt, col, v2, t1);% todo col
         %         maxP1, maxP2, maxP3
@@ -519,10 +409,11 @@ switch v1
 %         out
         plotAllPerms(col);
         plotAllP(maxP1, maxP2, maxP3);
-        if(len == 2)
-            % todo multi classes
-        end
-    otherwise% Читаем введенные данные и на их основании выводим результат
+
+else if v1 == 1 || v1 == 2 || v1 == 3 % [PP, SP, MK]
+        out = getmultiout( v1, t1, cl1tt, cl2tt, v2 );
+        
+    else % Читаем введенные данные и на их основании выводим результат
         t1 = get(handles.edit7, 'String');%priznaki
         t2 = get(handles.edit3, 'String');%classes
         if isempty(t2)
@@ -541,178 +432,19 @@ switch v1
         t2 = str2num(t2);
         cl1 = getcl(t2);
         cl2 = getcli(t2 + 1, getcllen());
-        %t1
-        %t2
         for i = 1:length(t1)
             cl1t(:, i) = cl1(:, t1(i));
             cl2t(:, i) = cl2(:, t1(i));
         end
-        switch v2
-            case 1% MSR
-                [res1, a] = rule_lab2_1(cl1t, cl2t, length(t1));%todo add pr
-                res2 = Amain(cl1t, cl2t, length(t1));
-                warning('off', 'MATLAB:printf:BadEscapeSequenceInFormat');
-                out = sprintf('Метод статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\n\r\nМодифицированного метод статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\n\r\nРешающие правила:\r\nc = %f\r\na1 = %f\r\na2 = %f\r\na3 = %f\r\na4 = %f\r\na5 = %f\r\na6 = %f', res1(1), res1(2), res1(3),res2(1),res2(2),res2(3),a(7),a(1),a(2),a(3),a(4),a(5),a(6));
-                disp(out);
-%                 out % for Ivan
-%                 out % for Ivan
-            case 2% MSA
-                warning('off', 'all');
-%                 MSA(cl1t, cl2t, length(t1));
-                [res1, a, c1max] = MSA(cl1t, cl2t, length(t1), 1);
-                %[res2, outf, c2, c2max] = MSAnew(cl1t, cl2t, length(t1), 2);
-                out = sprintf('Метод стохастической апроксимации:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nРезультат найден на цикле обучения: %d из %d%d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4),res1(5));
-                %Метод стохастической апроксимации с коэффициентами из
-                %метода статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f
-                %,res2(1),res2(2),res2(3),c2(1),c2(2),c2(3),c2(4),c2(5),c2(
-                %6),c2max(1),c2max(2),c2max(3),c2max(4),c2max(5),c2max(6));
-                disp(out);
-%                 out % for Ivan
-            case 3% MSA + MSR
-                [res1, a, c1max] = MSA(cl1t, cl2t, length(t1), 2);
-                %[res2, outf, c2, c2max] = MSAnew(cl1t, cl2t, length(t1), 2);
-                out = sprintf('Метод стохастической апроксимации с коэффициентами из метода статистических решений:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f\r\nРезультат найден на цикле обучения: %d из %d%d\r\n', res1(1), res1(2), res1(3),a(1),a(2),a(3),a(4),a(5),a(6),c1max(1),c1max(2),c1max(3),c1max(4),c1max(5),c1max(6),res1(4));
-                %Метод стохастической апроксимации с коэффициентами из метода статистических решений:\r\nВероятность  =
-                %%f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nНачальные коэффициенты:\r\nc1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f;\r\nКонечные коэффициенты:\r\nс1 = %f; c2 = %f; c3 = %f; c4 = %f; c5 = %f; c6 = %f
-                %,res2(1),res2(2),res2(3),c2(1),c2(2),c2(3),c2(4),c2(5),c2(
-                %6),c2max(1),c2max(2),c2max(3),c2max(4),c2max(5),c2max(6));
-                disp(out);
-            case 4% Perceptroni
-%                 ini = IniConfig();
-%                 ini.ReadFile('config/config.ini');
-%                 section = '[dataPerceptron]';
-%                 keys = ini.GetKeys(section);
-%                 values = ini.GetValues(section, keys);
-%                 trainCount = values{1};
-                [res1, w] = lab5With2Neuron(cl1t, cl2t, length(t1));
-                out = sprintf('Перцептрон:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nВесовые коэффициенты W нейронной сети:\r\n%f, %f;\r\n%f, %f\r\nРезультат найден на цикле обучения: %d из %d\r\n',res1(1), res1(2), res1(3),w(1),w(2),w(3),w(4),res1(4),res1(5));
-                disp(out);
-            case 5% NS
-                [res1, a] = lab6DontWork(cl1t, cl2t, length(t1));
-                out = sprintf('Однонаправленная нейронная сеть, обучаемаю с применением алгоритма обратного распространения:\r\nВероятность  =  %f\r\nОшибки 1 рода  =  %f\r\nОшибки 2 рода  =  %f\r\nКоличество слоев сети:\r\n%f\r\nКоличество нейронов в каждом слое:\r\n%f',res1(1), res1(2), res1(3),a(1),a(2));
-                disp(out);
-        end
+        t1Len = length(t1);
+        out = getsingleout( v2, cl1t, cl2t, t1Len );
         %res = Amain(cl1t, cl2t, length(t1));
-        %out = sprintf('Вероятность  =  %f\r\nОшибка 1 рода  =  %f\r\nОшибка 2 рода  =  %f\r\n', res(1), res(2), res(3));
+        %out = sprintf('Вероятность  =  %f\r\nОшибка 1 рода  =
+        %%f\r\nОшибка 2 рода  =  %f\r\n', res(1), res(2), res(3));
+    end
 end
-
-% case 1% PP
-%     out = '';
-%     cl1 = getcl(len - 1);
-%     cl2 = getcl(len);
-%     %                 cl1(1, :)
-%     %                 cl2(1, :)
-%     [res, outf] = Am(cl1, cl2, pr);
-%     if(len == 2)
-%         out = strtrim(outf);
-%     else
-%         addres(res);
-%         outf = strtrim(outf);
-%         stemp = strcat('Сравнение классов ', num2str(len-1), ' c ');
-%         stemp = strcat(stemp, ' ', num2str(len));
-%         out = strvcat(out, stemp, outf);
-%         for i = len-1: -1 :2
-%             cl1 = getcl(i-1);
-%             cl2 = getcli(i, len);
-%             %                     i
-%             %                     cl1(1, :)
-%             %                     cl2(1, :)
-%             %                     cl2(101, :)
-%             [res, outf] = Am(cl1, cl2, pr);
-%             addres(res);
-%             outf = strtrim(outf);
-%             s = strcat(' ', num2str(i));
-%             for j = i:len-1
-%                 s = strcat(s, ',', num2str(j+1));
-%             end
-%             stemp = strvcat(' ', strcat('Сравнение классов ', num2str(i-1), ' c ', ' ', s));
-%             out = strvcat(out, stemp, outf);
-%             %                         cl1 = getcl(2);
-%             %                         cl2 = getcl(3);
-%             %                         %cl2 = getcli(2, 3);
-%             %                     [res, outf] = Am(cl1, cl2, pr);
-%             %                     out = strtrim(outf);
-%         end
-%         format shortG;
-%         res1 = getres(1);
-%         len = length(res1(1, : , :));
-%         lenresult = getreslen();
-%         outStr = '';
-%         w{4,1,len} = [];
-%         k1 = 0; k2 = 0; k3 = 0;
-%         pr = getpr();
-%         for j = 1:pr
-%             for k = 1:lenresult
-%                 res = getres(k);
-%                 k1 = k1 + [res{1, 1, j}];
-%                 k2 = k2 + [res{2, 1, j}];
-%                 k3 = k3 + [res{3, 1, j}];
-%             end
-%             k4 = length([res{4,1,j}]);
-%             w(1,1,j) = {k1/2};
-%             w(2,1,j) = {k2/2};
-%             w(3,1,j) = {k3/2};
-%             w(4,1,j) = {k4};
-%             k1 = 0; k2 = 0; k3 = 0;
-%         end
-%         w = AsortPP(w, 1, pr);
-%         k4 = 2;
-%         idStart = pr+1;
-%         for j = pr+1:len
-%             for k = 1:lenresult
-%                 res = getres(k);
-%                 k1 = k1 + [res{1, 1, j}];
-%                 k2 = k2 + [res{2, 1, j}];
-%                 k3 = k3 + [res{3, 1, j}];
-%             end
-%             if (k4 < length([res{4,1,j}]))
-%                 w = AsortPP(w, idStart, j - 1);
-%                 idStart = j;
-%             end
-%             k4 = length([res{4,1,j}]);
-%             w(1,1,j) = {k1/2};
-%             w(2,1,j) = {k2/2};
-%             w(3,1,j) = {k3/2};
-%             w(4,1,j) = {k4};
-%             %outStr = strvcat(outStr, sprintf('%d:\t%4.2f\t%4.2f\t%4.2f\t%d',j, k1/lenresult, k2/lenresult, k3/lenresult, k4));
-%             k1 = 0; k2 = 0; k3 = 0;
-%         end
-%         
-%         for id = 1:len
-%             outStr = strvcat(outStr, sprintf('%d:\t%.2f\t%.2f\t%.2f\t%d',id, [w{1, 1, id}], [w{2, 1, id}], [w{3, 1, id}], [w{4, 1, id}]));
-%         end
-%         
-%         %outStr = strvcat(outStr,
-%         %sprintf('%d:\t%.2f\t%.2f\t%.2f\t%s',id, [acell{1, 1, id}], [acell{2, 1, id}], [acell{3, 1, id}], num2str(cell2mat(acell(4,1,id)))));
-%         out = strvcat(out, 'Результирующая выборка ', outStr);
-%     end
-%     
-%     t1 = get(handles.edit7, 'String');%priznaki
-%     t2 = get(handles.edit3, 'String');%classes
-%     if isempty(t2)
-%         set(handles.edit3, 'String', '1');
-%         t2 = '1';
-%     end
-%     t2 = str2num(t2);
-%     cl1 = getcl(t2);
-%     cl2 = getcli(t2 + 1, getcllen());
-%     t1 = str2num(t1);
-%     for i = 1:length(t1)
-%         cl1t(:, i) = cl1(:, t1(i));
-%         cl2t(:, i) = cl2(:, t1(i));
-%     end
-%     res = NS(cl1t, cl2t, length(t1));
-%     
-%     out = sprintf('Вероятность  =  %f\r\nОшибка 1 рода  =  %f\r\nОшибка 2 рода  =  %f\r\n', res(1), res(2), res(3));
-% end
-%     otherwise % Cl
-%         aCmain(pr);
-
-
-%writefile(handles.cbSource, handles.cbMocov, handles.cbKr, handles.edit5, out, handles.cbSave);
-%disp(res);
+%writefile(handles.cbSource, handles.cbMocov, handles.cbKr, handles.edit5,out, handles.cbSave);
 set(handles.edit5, 'String', out);
-%set(findobj('text3','text3'),'String','MyString')
 
 
 function [out] = writefile(cb1, cb2, cb3, edit, o, cb4)
@@ -835,7 +567,7 @@ function poVPR_Callback(hObject, eventdata, handles)
 handles = guidata(hObject);  % Update!
 v2 = get(handles.poVPR, 'Value');
 % Если выбранный метод не равен МСР, то не нужно задавать значеия
-if(v2 == 2 || v2 == 3 )%|| v2 == 4 || v2 == 5) % todo
+if(v2 == 3 || v2 == 4 )%|| v2 == 4 || v2 == 5) % todo
     set(handles.pushbutton5, 'Enable', 'on');
 else
     set(handles.pushbutton5, 'Enable', 'off');
@@ -988,9 +720,9 @@ switch get(get(handles.uipanel5,'SelectedObject'),'Tag')
     otherwise
         return;
 end
-if (v2 == 2 || v2 == 3) % MSA || MSA + MSR
+if (v2 == 3 || v2 == 4) % MSA || MSA + MSR
     uiwait(untitled(v2));
-else if (v2 == 4) % Perceptron
+else if (v2 == 5) % Perceptron
         ini = IniConfig();
         ini.ReadFile('config/config.ini');
         section = '[dataPerceptron]';
@@ -1022,7 +754,7 @@ else if (v2 == 4) % Perceptron
         ini.WriteFile('config/config.ini');
         setNS('layers', a(2));
         setNS('neurons', a(3));
-    else if (v2 == 5) % NS
+    else if (v2 == 6) % NS
             uiwait();
         end
     end
@@ -1041,7 +773,7 @@ function Data_Create_Callback(hObject, eventdata, handles)
 % hObject    handle to Data_Create (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-clc;
+% clc;
 global resumeFlag;
 resumeFlag = false;
 uiwait(dataCreate());

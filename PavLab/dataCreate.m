@@ -22,7 +22,7 @@ function varargout = dataCreate(varargin)
 
 % Edit the above text to modify the response to help dataCreate
 
-% Last Modified by GUIDE v2.5 08-May-2015 21:10:03
+% Last Modified by GUIDE v2.5 25-May-2015 11:23:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -69,25 +69,27 @@ values = ini.GetValues(section, keys);
 keys = ini.GetKeys(sectionMean);
 valuesMean = ini.GetValues(sectionMean, keys);
 valuesMean1 = valuesMean{1};
-valuesMean2 = valuesMean{2};
+% valuesMean2 = valuesMean{2};
 keys = ini.GetKeys(sectionVar);
 valuesVar = ini.GetValues(sectionVar, keys);
 valuesVar1 = valuesVar{1};
-valuesVar2 = valuesVar{2};
+% valuesVar2 = valuesVar{2};
 set(handles.edit1 , 'String', num2str(values{1}));
 set(handles.edit2 , 'String', num2str(values{2}));
 set(handles.edit3 , 'String', num2str(values{3}));
 set(handles.popupmenu2 , 'Value', values{4});
 
-set(handles.edit4 , 'String', valuesMean1(1));
-set(handles.edit5 , 'String', valuesMean1(2));
-set(handles.edit6 , 'String', valuesMean2(1));
-set(handles.edit7 , 'String', valuesMean2(2));
+set(handles.edit16 , 'String', valuesMean1);
+% set(handles.edit4 , 'String', valuesMean1(1));
+% set(handles.edit5 , 'String', valuesMean1(2));
+% set(handles.edit6 , 'String', valuesMean2(1));
+% set(handles.edit7 , 'String', valuesMean2(2));
 
-set(handles.edit8 , 'String', valuesVar1(1));
-set(handles.edit9 , 'String', valuesVar1(2));
-set(handles.edit10 , 'String', valuesVar2(1));
-set(handles.edit11 , 'String', valuesVar2(2));
+set(handles.edit17 , 'String', valuesVar1);
+% set(handles.edit8 , 'String', valuesVar1(1));
+% set(handles.edit9 , 'String', valuesVar1(2));
+% set(handles.edit10 , 'String', valuesVar2(1));
+% set(handles.edit11 , 'String', valuesVar2(2));
 
 % --- Outputs from this function are returned to the command line.
 function varargout = dataCreate_OutputFcn(hObject, eventdata, handles) 
@@ -107,7 +109,7 @@ function togglebutton2_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of togglebutton2
 
-clc;
+% clc;
 %get(handles.edit2 , 'String')
 if isempty(get(handles.edit2 , 'String')) || isempty(get(handles.edit3 , 'String')) ||     isempty(get(handles.edit4 , 'String')) || isempty(get(handles.edit5 , 'String')) ||    isempty(get(handles.edit6 , 'String')) || isempty(get(handles.edit7 , 'String')) ||   isempty(get(handles.edit8 , 'String')) || isempty(get(handles.edit9 , 'String')) ||    isempty(get(handles.edit10 , 'String')) || isempty(get(handles.edit11 , 'String')) || isempty(get(handles.edit1 , 'String'))
      %disp('Все поля должны быть заполнены!');
@@ -117,19 +119,23 @@ if isempty(get(handles.edit2 , 'String')) || isempty(get(handles.edit3 , 'String
 end
 global resumeFlag;
 resumeFlag = true;
-n = str2num(get(handles.edit1 , 'String'));
+clLen = str2num(get(handles.edit1 , 'String'));
 N= str2num(get(handles.edit2 , 'String'));
 pr= str2num(get(handles.edit3 , 'String'));
-class1M = [str2num(get(handles.edit4 , 'String')), str2num(get(handles.edit5 , 'String'))];
-class2M = [str2num(get(handles.edit6 , 'String')), str2num(get(handles.edit7 , 'String'))];
-class1D  = [str2num(get(handles.edit8 , 'String')), str2num(get(handles.edit9 , 'String'))];
-class2D = [str2num(get(handles.edit10 , 'String')), str2num(get(handles.edit11 , 'String'))];
+classM = str2num(get(handles.edit16 , 'String'));
+classD = str2num(get(handles.edit17 , 'String'));
+pr= str2num(get(handles.edit3 , 'String'));
+% class1M = [str2num(get(handles.edit4 , 'String')), str2num(get(handles.edit5 , 'String'))];
+% class2M = [str2num(get(handles.edit6 , 'String')), str2num(get(handles.edit7 , 'String'))];
+% class1D  = [str2num(get(handles.edit8 , 'String')), str2num(get(handles.edit9 , 'String'))];
+% class2D = [str2num(get(handles.edit10 , 'String')), str2num(get(handles.edit11 , 'String'))];
 lawflag = get(handles.popupmenu2, 'Value') == 1;
 lawValue = get(handles.popupmenu2, 'Value');
 fileflag = get(handles.checkbox1, 'Value') == 1;
 file = get(handles.edit15 , 'String');
 file = 'classes.mat';
-str = AT_autolab( N, n, pr, class1M, class2M, class1D, class2D, lawflag, fileflag, file);
+% str = AT_autolab( N, clLen, pr, class1M, class2M, class1D, class2D, lawflag, fileflag, file);
+str = AT_autolab( N, clLen, pr, classM, classD, lawflag, fileflag, file);
 setStr(str);
 set(handles.checkbox2, 'Value', 1);
 if (get(handles.checkbox2, 'Value') == 1)
@@ -141,12 +147,13 @@ if (get(handles.checkbox2, 'Value') == 1)
     keys = ini.GetKeys(section);
     keysMean = ini.GetKeys(sectionMean);
     keysVar = ini.GetKeys(sectionVar);
-    values = {n; N; pr; lawValue};
-    valuesMean = {class1M; class2M};
-    valuesVar = {class1D; class2D};
+    values = {clLen; N; pr; lawValue};
+    valuesMean = mat2str(classM);
+    valuesVar = mat2str(classD);
     ini.SetValues(section, keys, values);
-    ini.SetValues(sectionMean, keysMean{1}, valuesMean{1});
-    ini.SetValues(sectionMean, keysMean{2}, valuesMean{2});
+%     ini.SetValues(sectionMean, keysMean{1}, valuesMean{1});
+%     ini.SetValues(sectionMean, keysMean{2}, valuesMean{2});
+    ini.SetValues(sectionMean, keysMean, valuesMean);
     ini.SetValues(sectionVar, keysVar, valuesVar);
     ini.WriteFile('config/config.ini');
 end
@@ -472,3 +479,49 @@ function checkbox2_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of checkbox2
+
+
+
+function edit16_Callback(hObject, eventdata, handles)
+% hObject    handle to edit16 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit16 as text
+%        str2double(get(hObject,'String')) returns contents of edit16 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit16_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit16 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit17_Callback(hObject, eventdata, handles)
+% hObject    handle to edit17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit17 as text
+%        str2double(get(hObject,'String')) returns contents of edit17 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit17_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

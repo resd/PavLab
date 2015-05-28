@@ -1,5 +1,5 @@
-function [ a ] = Aprobb( sc, n)
-global kr;
+function [ a ] = Aprobb4( sc)
+global  n kr;
 
 tppr = 0;
 n1 = n(1);
@@ -17,12 +17,12 @@ for ii = 1:fori
             sum2 = sum2 + 1;
         end
     end
+    lpo2 = (sum2 / n1) * 100;  
     for i = ii+1:n1+n2
         if (sc(3, 1, i) == 2)
-            sum1 = sum1 + 1;
+				sum1 = sum1 + 1;
         end
     end
-%     lpo2 = (sum2 / n1) * 100;  
     lpo1 = sum2;%(sum1 / n2) * 100;                % //Вероятность ошибки 1-го рода
     lpo2 = sum1;
 	tppr = (1 - (sum1 + sum2) / (n1 + n2)) * 100.0;% //Процент прав. распозн.
@@ -32,7 +32,6 @@ for ii = 1:fori
 			a(2) = lpo1;
 			a(3) = lpo2;
             a(4) = kr(ii).zn;
-            a(5) = ii;
     end
 end
     

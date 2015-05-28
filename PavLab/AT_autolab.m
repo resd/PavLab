@@ -1,16 +1,18 @@
-function [ str ] = AT_autolab( N, n, pr, class1M, class2M, class1D, class2D, lawflag, fileflag, file )
+function [ str ] = AT_autolab( N, clLen, pr, class1M, class1D, lawflag, fileflag, file )
 %AT_LAB2 Summary of this function goes here
 %   Detailed explanation goes here
 clearclpr();
 % Разкомментировать функцию, сооответственно варианта
 if lawflag
     %для равномерного закона распределения
-    class1 = uniformClass(pr, N, class1M, class1D);
-    class2 = uniformClass(pr, N, class2M, class2D);
+    for i = 1:clLen
+        class{i} = uniformClass(pr, N, class1M(i,:), class1D(i,:));
+    end
 else
     %для нормального закона распределения
-    class1 = normalClass(pr, N, class1M, class1D);
-    class2 = normalClass(pr, N, class2M, class2D);
+    for i = 1:clLen
+        class{i} = normalClass(pr, N, class1M(i,:), class1D(i,:));
+    end
 end
 % Запись полученных классов в файл
 if fileflag
@@ -24,10 +26,11 @@ if fileflag
         end
         q = q + 1;
     end
-    save (file, 'class1', 'class2');
+    save (file, 'class');
 end
-addcl(class1);
-addcl(class2);
+% addcl(class1);
+% addcl(class2);
+setclasses(class);
 setpr(pr);
 str = strcat('Количество признаков: ', pr);
 for i = 1:getcllen()

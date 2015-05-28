@@ -15,14 +15,15 @@ end
 k = 2; % количество выбираемых за 1 шаг перестановок из pr
 out = sprintf('ћетод ћонте- арло:\nћаксимальна€ веро€тность правильного распознавани€ дл€ каждого набора признаков / Ќабор признаков\n');
 maxP = [];
+addpath config;
 
 for q = 1:pr-1
     prp = nchoosek(w, q);    % текуща€ выборка по признаком i
-    [prl, col] = size(prp);       % длина текущей выборки
-    t = 1 / prl;            % количество интервалов
-    addpath config
-    [h, s] = MKconfig(t, prl);
-    rmpath config
+    [prl, col] = size(prp);  % длина текущей выборки
+    t = 1 / prl;             % количество интервалов
+    %   h     - велечина, на которую мен€етс€ интервал
+    %   s     - количество сравнений на каждом шаге
+    [h, s] = MKconfig(t, prl, q);
     %     s = 5; %floor(row*0.1) + 1
     len(1 : prl) = t;
     for i = 1 : prl
@@ -30,12 +31,12 @@ for q = 1:pr-1
     end
     for ss = 1 : s
         % ѕри k = 2
-        if fix(max(len)) == 1.0 break; end;
+        if fix(max(len)) == 1.0  break;  end;
         while true
             qw = rand(1, k);
             b(1) = find(qw(1), prl, diap);
             b(2) = find(qw(2), prl, diap);
-            if (b(1) ~= b(2)) break; end;
+            if (b(1) ~= b(2))  break;  end;
         end
         %b
         cl11 = [];
@@ -47,6 +48,16 @@ for q = 1:pr-1
             cl12(:, jj) = cl2(:, prp(b(1), jj));
             cl21(:, jj) = cl1(:, prp(b(2), jj));
             cl22(:, jj) = cl2(:, prp(b(2), jj));
+        end
+        switch v2
+            case 1
+                res = rule(cl1t, cl2t, pr, false);%[res, a]
+            case 2
+                res = rule(cl1t, cl2t, pr, true);%[res, a]
+            case 3
+                res = MSA(cl1t, cl2t, pr, 1);%[res, c0, c1max]\
+            case 4
+                res = MSA(cl1t, cl2t, pr, 2);%[res, c0, c1max]
         end
         res1 = Amain(cl11, cl12, q);
         res2 = Amain(cl21, cl22, q);
@@ -125,11 +136,25 @@ for q = 1:pr-1
     maxP(i) = res(1);
 end
 
+MKconfig(t, 1, pr);
+rmpath config;
 q = w;
 for e = 1:length(q)
     qq(e) = t1(q(e));
 end
-res = Amain(cl1, cl2, pr);
+switch v2
+    case 1
+        res = rule(cl1t, cl2t, pr, false);%[res, a]
+        %                 res = Amain(cl1t, cl2t, col);
+    case 2
+        res = rule(cl1t, cl2t, pr, true);%[res, a]
+        %                 res = MSAnew(cl1t, cl2t, col, 1);
+    case 3
+        res = MSA(cl1t, cl2t, pr, 1);%[res, c0, c1max]
+        %                 res = MSA(cl1t, cl2t, col, 1);
+    case 4
+        res = MSA(cl1t, cl2t, pr, 2);%[res, c0, c1max]
+end
 str = sprintf('%.2f\t%s', res(1), num2str(qq));
 out = strvcat(out, str);
 maxP(pr) = res(1);

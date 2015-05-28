@@ -1,14 +1,15 @@
-function [class] = uniformClass(n, N, classM, classD)
+function [class] = uniformClass(pr, N, classM, classD)
 % n Ц к≥льк≥сть ознак у класах
 % N Ц к≥льк≥сть об'Їкт≥в у навчальн≥й виб≥рц≥
 % classM Ц вектор мат. оч≥кувань ознак в≥дпов≥дно до вар≥анту завданн€
 % classD Ц ≥нтервал розпод≥лу ознак в≥дпов≥дно до вар≥анту завданн€
 % формуванн€ матриц≥ N х n випадкових чисел
 % з р≥вном≥рним законом розпод≥лу
-class = rand(N,n);
+class = rand(N,pr);
 
 % масштабуванн€ елемент≥в статистичноњ виб≥рки
-class(:,1) = classM(1) + 6*classD(1)*(class(:,1)-0.5);
-class(:,2) = classM(1) + 6*classD(2)*(class(:,2)-0.5); 
+for i = 1:pr
+    class(:,i) = classM(i) + 6*classD(i)*(class(:,i)-0.5);
+end
 
 end

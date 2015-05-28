@@ -1,8 +1,8 @@
-function [] = Aopr(nkl, rz, pr, n, det)
+function [] = Aopr(nkl, rz, pr)
 % function [] = Aopr(nkl, rz, pr, n, mo, cov, det )
 %AOPR Summary of this function goes here
 %   Detailed explanation goes here
-global mo cov kr;
+global mo cov n det kr;
 if (nkl == 1)
 	st = 0;
 else

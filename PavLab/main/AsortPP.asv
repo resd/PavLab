@@ -1,0 +1,42 @@
+function [ output_args ] = AsortPP( res, pr)
+%ASORTPP Summary of this function goes here
+%   Detailed explanation goes here
+cell = struct2cell(res);
+
+% fprintf('Xi\t\t\tP\t\t\tq1\t\t\tq2\n');
+% outStr = sprintf('Xi          P             q1             q2\n');
+for i = 1:pr-1
+    c1 = cell2mat(cell(1, 1 , i));
+    c2 = cell2mat(cell(1, 1 , i+1));
+    if ( c2 > c1 )
+        for j = 1:4
+            t = cell(j, 1 , i+1);
+            cell(j, 1 , i+1) = cell(j, 1 , i);
+            cell(j, 1 , i) = t;
+        end
+    end
+end
+
+len = 2;
+for i = pr+1:length(cell)-1
+    q = [t{i}];
+    if (len < length(q))
+        len = length(q);
+    end
+    %fprintf('ƒанные по %d признакам:', len);
+    % —формировать массивы иходных данных
+    % по номерам признаков
+    for j = 1:length(q)
+        a(:, j) = cl1(:, q(j));
+        b(:, j) = cl2(:, q(j));
+        ew = strvcat(q(j) + '0', '-');
+        s = strvcat(s, ew);%q(j) + '0'
+    end
+    s = s(1:length(s) - 1);
+    %unique(s)
+    wq = Amain(a, b, length(q));
+end
+
+fprintf('%s:\t\t%.2f\t\t%.2f\t\t%.2f\n', s, wq(1), wq(2), wq(3));
+outStr = strvcat(outStr, sprintf('     %s:     %.2f         %.2f           %.2f', s, wq(1), wq(2), wq(3)));
+end
